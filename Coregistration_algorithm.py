@@ -19,7 +19,6 @@
  ***************************************************************************/
 """
 import os
-import shutil
 import tempfile
 import rasterio
 from osgeo import gdal
@@ -132,15 +131,11 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
             return os.path.realpath(layer.source().split("|layername")[0])
 
         img_ref = get_inputfilepath(self.parameterAsRasterLayer(parameters, self.IMG_REF, context))
-
         file_in = get_inputfilepath(self.parameterAsRasterLayer(parameters, self.INPUT, context))
-
         output_file = self.parameterAsOutputLayer(parameters, self.OUTPUT, context)
 
         feedback.pushInfo("Co-registration:")
-        tmp_dir = tempfile.mkdtemp()
-
-        feedback.pushInfo("Processing file: " + file_in)
+        feedback.pushInfo("\nProcessing file: " + file_in)
 
         # extract some info
         with rasterio.open(img_ref) as target:
@@ -158,23 +153,28 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
 
         # ----- reprojection
         if src_crs != dst_crs:
-            feedback.pushInfo("--> reprojection requires from {} to {}".format(src_crs, dst_crs))
+            feedback.pushInfo("--> reprojection is required, to CRS: {}".format(dst_crs))
             # reproject
-            reprj_file = tempfile.mktemp(suffix=".tif", dir=tmp_dir)
+            reprj_file_tmp = tempfile.NamedTemporaryFile(suffix=".tif", delete=True)
+            reprj_file = reprj_file_tmp.name
             resample = gdal.GRA_NearestNeighbour
             gdal.Warp(reprj_file, file_in, srcSRS=src_crs, dstSRS=dst_crs, xRes=x_res, yRes=y_res, resampleAlg=resample)
         else:
+            reprj_file_tmp = False
             reprj_file = file_in
 
         # ----- set extent and align pixels based on PU
         feedback.pushInfo("--> set extent and align pixels")
+        if target.nodata is not None:
+            feedback.pushInfo("--> nodata as: {}".format(target.nodata))
 
         with rasterio.open(reprj_file) as src:
             with WarpedVRT(src, **vrt_options) as vrt:
                 rio_shutil.copy(vrt, output_file, driver='GTiff')
 
-        feedback.pushInfo("--> done")
+        feedback.pushInfo("--> done\n")
 
-        shutil.rmtree(tmp_dir, ignore_errors=True)
+        if reprj_file_tmp:
+            reprj_file_tmp.close()
 
         return {self.OUTPUT: output_file}
