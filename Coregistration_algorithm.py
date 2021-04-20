@@ -20,10 +20,7 @@
 """
 import os
 import tempfile
-import rasterio
 from osgeo import gdal
-from rasterio import shutil as rio_shutil
-from rasterio.vrt import WarpedVRT
 
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QCoreApplication
@@ -66,7 +63,7 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         lowercase alphanumeric characters only and no spaces or other
         formatting characters.
         """
-        return 'Image co-registration'
+        return 'Image to image Co-Registration'
 
     def displayName(self):
         """
@@ -126,6 +123,49 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         """
         Here is where the processing itself takes place.
         """
+        def get_inputfilepath(layer):
+            return os.path.realpath(layer.source().split("|layername")[0])
+
+        img_ref = get_inputfilepath(self.parameterAsRasterLayer(parameters, self.IMG_REF, context))
+        file_in = get_inputfilepath(self.parameterAsRasterLayer(parameters, self.INPUT, context))
+        output_file = self.parameterAsOutputLayer(parameters, self.OUTPUT, context)
+
+        feedback.pushInfo("Image to image Co-Registration:")
+        feedback.pushInfo("\nProcessing file: " + file_in)
+
+        # extract some info from IMG_REF
+        gdal_img_ref = gdal.Open(img_ref, gdal.GA_ReadOnly)
+        min_x, x_res, x_skew, max_y, y_skew, y_res = gdal_img_ref.GetGeoTransform()
+        max_x = min_x + (gdal_img_ref.RasterXSize * x_res)
+        min_y = max_y + (gdal_img_ref.RasterYSize * y_res)
+        x_res = abs(float(x_res))
+        y_res = abs(float(y_res))
+        # projection
+        dst_crs = gdal_img_ref.GetProjection()
+        #
+        nodata = gdal_img_ref.GetRasterBand(1).GetNoDataValue()
+
+        # extract some info from INPUT
+        gdal_input = gdal.Open(file_in, gdal.GA_ReadOnly)
+        src_crs = gdal_input.GetProjection()
+
+        gdal.Warp(output_file, file_in, srcSRS=src_crs, dstSRS=dst_crs, xRes=x_res, yRes=y_res, resampleAlg=gdal.GRA_NearestNeighbour,
+                  outputBounds=(min_x, min_y, max_x, max_y), targetAlignedPixels=False)
+
+        feedback.pushInfo("--> done\n")
+
+        del gdal_img_ref, gdal_input
+
+        return {self.OUTPUT: output_file}
+
+    def processAlgorithmRasterio(self, parameters, context, feedback):
+        """
+        Here is where the processing itself takes place.
+        """
+        import rasterio
+        from osgeo import gdal
+        from rasterio import shutil as rio_shutil
+        from rasterio.vrt import WarpedVRT
 
         def get_inputfilepath(layer):
             return os.path.realpath(layer.source().split("|layername")[0])
