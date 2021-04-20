@@ -57,8 +57,8 @@ def classFactory(iface):  # pylint: disable=invalid-name
     :type iface: QgsInterface
     """
     # load/install extra python dependencies
-    # pre_init_plugin(iface)
-
+    pre_init_plugin(iface)
+    
     #
     from Coregistration.Coregistration_plugin import CoregistrationPlugin
     return CoregistrationPlugin()

@@ -50,24 +50,11 @@ Dependency = namedtuple('Dep', ['name', 'min', 'install'])
 #   install: fix/exact version number or None
 #   min: minimum version number or None
 DEPS = [
-    Dependency('rasterio', install=None, min=None),
+    Dependency('rasterio', install="1.1.8", min=None),
 ]
 
 # Use a custom folder for the packages to avoid polluting the per-user site-packages.
-# This also avoids any permission issues.
-# Windows: ~\AppData\Local\coregistration\python<xy>
-# macOS: ~/Library/Application Support/coregistration/python<xy>
-# Linux: ~/.local/share/coregistration/python<xy>
-if platform.system() == 'Windows':
-    DATA_HOME = os.getenv('LOCALAPPDATA')
-    assert DATA_HOME, '%LOCALAPPDATA% not found'
-elif platform.system() == 'Darwin':
-    DATA_HOME = os.path.join(os.path.expanduser('~'), 'Library', 'Application Support')
-else:
-    DATA_HOME = os.getenv('XDG_DATA_HOME')
-    if not DATA_HOME:
-        DATA_HOME = os.path.join(os.path.expanduser('~'), '.local', 'share')
-INSTALL_PREFIX = os.path.join(DATA_HOME, 'coregistration', 'python' + ''.join(PY_MAJORMINOR))
+INSTALL_PREFIX = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'extlibs', 'python' + ''.join(PY_MAJORMINOR))
 LOG_PATH = os.path.join(INSTALL_PREFIX, 'pip.log')
 
 
