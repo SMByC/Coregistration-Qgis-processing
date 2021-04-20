@@ -1,0 +1,33 @@
+# This file contains metadata for your plugin.
+
+# This file should be included when you package your plugin.# Mandatory items:
+
+[general]
+name=Coregistration
+description=Image co-registration, projection and pixel alignment based on a target image
+about=Image co-registration, projection and pixel alignment based on a target image
+
+version=0.1
+qgisMinimumVersion=3.0
+qgisMaximumVersion=3.99
+
+author=Xavier Corredor Llano, SMByC
+email=xavier.corredor.llano@gmail.com
+
+homepage=https://smbyc.github.io/Coregistration-Qgis-processing
+tracker=https://github.com/SMByC/Coregistration-Qgis-processing/issues
+repository=https://github.com/SMByC/Coregistration-Qgis-processing
+
+changelog=
+    19.8.15:
+    - ..
+
+tags=raster,processing,co-registration
+
+external_deps=
+
+category=Raster
+icon=icons/coregistration.svg
+experimental=False
+deprecated=False
+server=False
