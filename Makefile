@@ -52,7 +52,7 @@ UI_FILES =
 
 EXTRAS = metadata.txt 
 
-EXTRA_DIRS = core utils icons
+EXTRA_DIRS = utils icons
 
 COMPILED_RESOURCE_FILES = resources.py
 
@@ -135,6 +135,7 @@ dclean:
 	@echo "-----------------------------------"
 	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname "*.pyc" -delete
 	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname ".git" -prune -exec rm -Rf {} \;
+	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname "__pycache__" -prune -exec rm -Rf {} \;
 
 
 derase:
