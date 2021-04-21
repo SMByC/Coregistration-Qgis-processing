@@ -24,7 +24,8 @@ from osgeo import gdal
 
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import (QgsProcessingAlgorithm, QgsProcessingParameterRasterDestination, QgsProcessingParameterRasterLayer)
+from qgis.core import (QgsProcessingAlgorithm, QgsProcessingParameterRasterDestination, QgsProcessingParameterRasterLayer,
+                       QgsProcessingParameterNumber, QgsProcessingParameterDefinition, QgsProcessingParameterEnum)
 
 
 class CoregistrationAlgorithm(QgsProcessingAlgorithm):
@@ -39,7 +40,23 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
 
     INPUT = 'INPUT'
     IMG_REF = 'IMG_REF'
+    NODATA = 'NODATA'
+    RESAMPLING = 'RESAMPLING'
     OUTPUT = 'OUTPUT'
+
+    resampling_methods = (
+        ('Nearest Neighbour', gdal.GRA_NearestNeighbour),
+        ('Bilinear', gdal.GRA_Bilinear),
+        ('Cubic', gdal.GRA_Cubic),
+        ('Cubic Spline', gdal.GRA_CubicSpline),
+        ('Lanczos Windowed Sinc', gdal.GRA_Lanczos),
+        ('Average', gdal.GRA_Average),
+        ('Mode', gdal.GRA_Mode),
+        ('Maximum', gdal.GRA_Max),
+        ('Minimum', gdal.GRA_Min),
+        ('Median', gdal.GRA_Med),
+        ('First Quartile', gdal.GRA_Q1),
+        ('Third Quartile', gdal.GRA_Q3))
 
     def __init__(self):
         super().__init__()
@@ -101,16 +118,38 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterRasterLayer(
                 self.INPUT,
-                self.tr('Raster input'),
+                self.tr('Raster input for co-register'),
             )
         )
 
         self.addParameter(
             QgsProcessingParameterRasterLayer(
                 self.IMG_REF,
-                self.tr('The reference image to use as based to co-register the input images')
+                self.tr('The reference image to use as based to co-register the input image')
             )
         )
+
+        parameter = \
+            QgsProcessingParameterNumber(
+                self.NODATA,
+                self.tr('Nodata value for output bands'),
+                type=QgsProcessingParameterNumber.Double,
+                defaultValue=None,
+                optional=True
+            )
+        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(parameter)
+
+        parameter = \
+            QgsProcessingParameterEnum(
+                self.RESAMPLING,
+                self.tr('Resampling method to use'),
+                options=[i[0] for i in self.resampling_methods],
+                defaultValue=0,
+                optional=False
+            )
+        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(parameter)
 
         self.addParameter(
             QgsProcessingParameterRasterDestination(
@@ -128,6 +167,11 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
 
         img_ref = get_inputfilepath(self.parameterAsRasterLayer(parameters, self.IMG_REF, context))
         file_in = get_inputfilepath(self.parameterAsRasterLayer(parameters, self.INPUT, context))
+        if self.NODATA in parameters and parameters[self.NODATA] is not None:
+            dst_nodata = self.parameterAsDouble(parameters, self.NODATA, context)
+        else:
+            dst_nodata = None
+        resampling_method = self.resampling_methods[self.parameterAsEnum(parameters, self.RESAMPLING, context)][1]
         output_file = self.parameterAsOutputLayer(parameters, self.OUTPUT, context)
 
         feedback.pushInfo("Image to image Co-Registration:")
@@ -142,14 +186,13 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         y_res = abs(float(y_res))
         # projection
         dst_crs = gdal_img_ref.GetProjection()
-        #
-        nodata = gdal_img_ref.GetRasterBand(1).GetNoDataValue()
 
         # extract some info from INPUT
         gdal_input = gdal.Open(file_in, gdal.GA_ReadOnly)
         src_crs = gdal_input.GetProjection()
 
-        gdal.Warp(output_file, file_in, srcSRS=src_crs, dstSRS=dst_crs, xRes=x_res, yRes=y_res, resampleAlg=gdal.GRA_NearestNeighbour,
+        gdal.Warp(output_file, file_in, srcSRS=src_crs, dstSRS=dst_crs, xRes=x_res, yRes=y_res,
+                  resampleAlg=resampling_method, srcNodata=dst_nodata, dstNodata=dst_nodata,
                   outputBounds=(min_x, min_y, max_x, max_y), targetAlignedPixels=False)
 
         feedback.pushInfo("--> done\n")
