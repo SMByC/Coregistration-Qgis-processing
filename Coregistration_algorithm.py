@@ -25,7 +25,8 @@ from osgeo import gdal
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import (QgsProcessingAlgorithm, QgsProcessingParameterRasterDestination, QgsProcessingParameterRasterLayer,
-                       QgsProcessingParameterNumber, QgsProcessingParameterDefinition, QgsProcessingParameterEnum)
+                       QgsProcessingParameterNumber, QgsProcessingParameterDefinition, QgsProcessingParameterEnum,
+                       QgsProcessingParameterVectorLayer, QgsProcessing)
 
 
 class CoregistrationAlgorithm(QgsProcessingAlgorithm):
@@ -42,6 +43,7 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
     IMG_REF = 'IMG_REF'
     NODATA = 'NODATA'
     RESAMPLING = 'RESAMPLING'
+    MASK = 'MASK'
     OUTPUT = 'OUTPUT'
 
     resampling_methods = (
@@ -151,6 +153,16 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(parameter)
 
+        parameter = \
+            QgsProcessingParameterVectorLayer(
+                self.MASK,
+                self.tr('Apply a mask (area of interest)'),
+                types=[QgsProcessing.TypeVectorPolygon],
+                optional=True
+            )
+        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(parameter)
+
         self.addParameter(
             QgsProcessingParameterRasterDestination(
                 self.OUTPUT,
@@ -172,6 +184,11 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         else:
             dst_nodata = None
         resampling_method = self.resampling_methods[self.parameterAsEnum(parameters, self.RESAMPLING, context)][1]
+        if self.MASK in parameters and parameters[self.MASK] is not None:
+            mask_layer = self.parameterAsVectorLayer(parameters, self.MASK, context)
+            mask_path = os.path.realpath(mask_layer.source().split("|layername")[0])
+        else:
+            mask_path = None
         output_file = self.parameterAsOutputLayer(parameters, self.OUTPUT, context)
 
         feedback.pushInfo("Image to image Co-Registration:")
@@ -192,7 +209,7 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         src_crs = gdal_input.GetProjection()
 
         gdal.Warp(output_file, file_in, srcSRS=src_crs, dstSRS=dst_crs, xRes=x_res, yRes=y_res,
-                  resampleAlg=resampling_method, srcNodata=dst_nodata, dstNodata=dst_nodata,
+                  resampleAlg=resampling_method, srcNodata=dst_nodata, dstNodata=dst_nodata, cutlineDSName=mask_path,
                   outputBounds=(min_x, min_y, max_x, max_y), targetAlignedPixels=False)
 
         feedback.pushInfo("--> done\n")
