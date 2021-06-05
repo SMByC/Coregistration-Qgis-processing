@@ -39,8 +39,8 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
     # used when calling the algorithm from another algorithm, or when
     # calling from the QGIS console.
 
-    INPUT = 'INPUT'
     IMG_REF = 'IMG_REF'
+    INPUT = 'INPUT'
     NODATA = 'NODATA'
     RESAMPLING = 'RESAMPLING'
     MASK = 'MASK'
@@ -119,15 +119,15 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
 
         self.addParameter(
             QgsProcessingParameterRasterLayer(
-                self.INPUT,
-                self.tr('Raster input for co-register'),
+                self.IMG_REF,
+                self.tr('The REFERENCE image to use as based to co-register the target image')
             )
         )
 
         self.addParameter(
             QgsProcessingParameterRasterLayer(
-                self.IMG_REF,
-                self.tr('The reference image to use as based to co-register the input image')
+                self.INPUT,
+                self.tr('The TARGET image for co-register'),
             )
         )
 
