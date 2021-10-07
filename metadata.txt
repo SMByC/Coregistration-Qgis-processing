@@ -1,7 +1,3 @@
-# This file contains metadata for your plugin.
-
-# This file should be included when you package your plugin.# Mandatory items:
-
 [general]
 name=Coregistration
 description=Image to image co-registration processing plugin, converting the target image using a pixel alignment process based on a reference image.
@@ -14,7 +10,7 @@ qgisMaximumVersion=3.99
 author=Xavier Corredor Llano, SMByC
 email=xavier.corredor.llano@gmail.com
 
-homepage=https://smbyc.github.io/Coregistration-Qgis-processing
+homepage=https://github.com/SMByC/Coregistration-Qgis-processing
 tracker=https://github.com/SMByC/Coregistration-Qgis-processing/issues
 repository=https://github.com/SMByC/Coregistration-Qgis-processing
 
