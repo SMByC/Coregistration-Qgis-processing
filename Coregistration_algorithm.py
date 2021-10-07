@@ -75,11 +75,11 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         parameters and outputs associated with it..
         """
         html_help = '''
-        <p>This Qgis processing generates a new raster file base on the target image with all properties from the reference image in order to have an image to image co-registration. The co-registration process include:</p>
+        <p>This Qgis processing generates a new raster file base on the target image with all properties from the reference image in order to have an image to image co-registration. The pixel alignment process include:</p>
         <ul>
         <li>- Reprojection (only if needed)</li>
         <li>- Resampling (only if pixel sizes are different)</li>
-        <li>- Pixel alignment</li>
+        <li>- Extent/bounds adjustment</li>
         <li>- Apply a mask as an area of interest (optional)</li>
         </ul>'''
         return html_help

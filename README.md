@@ -1,14 +1,14 @@
 # Coregistration
 
-Qgis processing plugin for image to image co-registration, projection and pixel alignment based on a target image.
+Image to image co-registration processing Qgis plugin, converting the target image using a pixel alignment process based on a reference image.
 
 ![](docs/img/coregistration.png)
 
-It generates a new raster file base on the target image with all properties from the reference image in order to have an image to image co-registration. The co-registration process include:
+It generates a new raster file base on the target image with all properties from the reference image in order to have an image to image co-registration. The pixel alignment process include:
 
 * Reprojection (only if needed)
 * Resampling (only if pixel sizes are different)
-* Pixel alignment
+* Extent/bounds adjustment
 * Apply a mask as an area of interest (optional)
 
 ## Basic demo
