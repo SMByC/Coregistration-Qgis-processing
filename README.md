@@ -19,7 +19,7 @@ The plugin will be available in the `Processing Toolbox` or you can search and o
 
 ### Basic demo
 
-You can test it using a simple basic example in this [zip file](files_demo.zip) with a reference file and two target images.
+You can test it using a simple basic example in this [zip file](files_demo.zip?raw=true) with a reference file and two target images.
 
 ## Source code
 
