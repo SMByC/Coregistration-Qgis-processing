@@ -69,7 +69,20 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         return QCoreApplication.translate(context, string)
 
     def shortHelpString(self):
-        return None
+        """
+        Returns a localised short helper string for the algorithm. This string
+        should provide a basic description about what the algorithm does and the
+        parameters and outputs associated with it..
+        """
+        html_help = '''
+        <p>This Qgis processing generates a new raster file base on the target image with all properties from the reference image in order to have an image to image co-registration. The co-registration process include:</p>
+        <ul>
+        <li>- Reprojection (only if needed)</li>
+        <li>- Resampling (only if pixel sizes are different)</li>
+        <li>- Pixel alignment</li>
+        <li>- Apply a mask as an area of interest (optional)</li>
+        </ul>'''
+        return html_help
 
     def createInstance(self):
         return CoregistrationAlgorithm()
