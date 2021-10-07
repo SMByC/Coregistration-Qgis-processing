@@ -52,7 +52,7 @@ UI_FILES =
 
 EXTRAS = metadata.txt 
 
-EXTRA_DIRS = utils icons
+EXTRA_DIRS = icons
 
 COMPILED_RESOURCE_FILES = resources.py
 
