@@ -11,7 +11,13 @@ It generates a new raster file base on the target image with all properties from
 * Extent/bounds adjustment
 * Apply a mask as an area of interest (optional)
 
-## Basic demo
+## Installation
+
+The plugin can be installed using the QGIS Plugin Manager, go into Qgis to `Plugins` menu and `Manage and install plugins`, in `All` section search for `Coregistration`.
+
+The plugin will be available in the `Processing Toolbox` or you can search and open it directly from the `Statusbar`.
+
+### Basic demo
 
 You can test it using a simple basic example in this [zip file](files_demo.zip) with a reference file and two target images.
 
