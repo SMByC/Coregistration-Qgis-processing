@@ -4,6 +4,8 @@ Image to image co-registration processing Qgis plugin, converting the target ima
 
 ![](docs/img/coregistration.png)
 
+> This is an early version that includes the most basic type of co-registration, new methods for co-registration are coming.
+
 It generates a new raster file base on the target image with all properties from the reference image in order to have an image to image co-registration. The pixel alignment process include:
 
 * Reprojection (only if needed)
