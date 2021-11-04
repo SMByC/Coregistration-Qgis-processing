@@ -95,7 +95,7 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         lowercase alphanumeric characters only and no spaces or other
         formatting characters.
         """
-        return 'Image to image Co-Registration'
+        return 'Basic pixel alignment'
 
     def displayName(self):
         """

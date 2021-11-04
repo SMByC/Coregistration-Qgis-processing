@@ -24,7 +24,7 @@ import sys
 import inspect
 
 from qgis.core import QgsApplication
-from Coregistration.Coregistration_provider import CoregistrationProvider
+from Coregistration.coregistration_provider import CoregistrationProvider
 
 cmd_folder = os.path.split(inspect.getfile(inspect.currentframe()))[0]
 

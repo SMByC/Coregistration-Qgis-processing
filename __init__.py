@@ -29,5 +29,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
 
     #
-    from Coregistration.Coregistration_plugin import CoregistrationPlugin
+    from Coregistration.coregistration_plugin import CoregistrationPlugin
     return CoregistrationPlugin()
