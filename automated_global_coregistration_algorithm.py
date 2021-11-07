@@ -25,7 +25,7 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import (QgsProcessingAlgorithm, QgsProcessingParameterRasterDestination, QgsProcessingParameterRasterLayer,
                        QgsProcessingParameterNumber, QgsProcessingParameterDefinition, QgsProcessingParameterEnum,
-                       QgsProcessingParameterExtent)
+                       QgsProcessingParameterExtent, QgsProcessingParameterBoolean)
 
 
 class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
@@ -40,6 +40,8 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
 
     IMG_REF = 'IMG_REF'
     INPUT = 'INPUT'
+    ALIGN_GRIDS = "ALIGN_GRIDS"
+    MATCH_GSD = "MATCH_GSD"
     MATCHING_WINDOW = 'MATCHING_WINDOW'
     MAX_SHIFT = 'MAX_SHIFT'
     RESAMPLING = 'RESAMPLING'
@@ -147,6 +149,22 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
             )
         )
 
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.ALIGN_GRIDS,
+                self.tr('Align the input coordinate grid to the reference'),
+                defaultValue=True,
+            )
+        )
+
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.MATCH_GSD,
+                self.tr('Match the input pixel size to the reference pixel size'),
+                defaultValue=True,
+            )
+        )
+
         parameter = \
             QgsProcessingParameterExtent(
                 self.MATCHING_WINDOW,
@@ -198,6 +216,9 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         img_ref = get_inputfilepath(self.parameterAsRasterLayer(parameters, self.IMG_REF, context))
         img_tgt = get_inputfilepath(self.parameterAsRasterLayer(parameters, self.INPUT, context))
 
+        align_grids = self.parameterAsBoolean(parameters, self.ALIGN_GRIDS, context)
+        match_gsd = self.parameterAsBoolean(parameters, self.MATCH_GSD, context)
+
         matching_window = self.parameterAsExtent(parameters, self.MATCHING_WINDOW, context,
                                                  self.parameterAsRasterLayer(parameters, self.IMG_REF, context).crs())
         # extract some info from target image
@@ -222,8 +243,8 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         feedback.pushInfo("\nProcessing file: " + img_tgt)
 
         feedback.pushCommandInfo("Running Arosics...")
-        CR = COREG(img_ref, img_tgt, path_out=output_file, align_grids=True, wp=(wp_x, wp_y),
-                   ws=(ws_x, ws_y), resamp_alg_deshift=resampling_method, match_gsd=True,
+        CR = COREG(img_ref, img_tgt, path_out=output_file, align_grids=align_grids, match_gsd=match_gsd,
+                   wp=(wp_x, wp_y), ws=(ws_x, ws_y), resamp_alg_deshift=resampling_method,
                    max_shift=max_shift, max_iter=15)
         CR.correct_shifts()
 
