@@ -85,8 +85,13 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         It is designed to robustly handle the typical \
         difficulties of multi-sensoral/multi-temporal images. Clouds are automatically handled by the implemented \
         outlier detection algorithms [1].
+        
+        To check the complete log of the process, open the Python Console.
 
-        [1] This algorithm use Arosics software developed by Daniel Scheffler, <a href="https://danschef.git-pages.gfz-potsdam.de/arosics/doc/">more info</a></p>'''
+        [1] This algorithm use Arosics software developed by Daniel Scheffler, \
+        <a href="https://danschef.git-pages.gfz-potsdam.de/arosics/doc/">url</a> \
+        <a href="https://doi.org/10.3390/rs9070676">paper</a> \
+        </p>'''
         return html_help
 
     def createInstance(self):
