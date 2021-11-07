@@ -50,8 +50,7 @@ class CoregistrationProvider(QgsProcessingProvider):
         Loads all algorithms belonging to this provider.
         """
         self.addAlgorithm(CoregistrationAlgorithm())
-        # add additional algorithms here
-        # self.addAlgorithm(MyOtherAlgorithm())
+        self.addAlgorithm(AutomatedGlobalCoregistrationAlgorithm())
 
     def id(self):
         """
