@@ -74,13 +74,15 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         parameters and outputs associated with it..
         """
         html_help = '''
-        <p>This Qgis processing generates a new raster file base on the target image with all properties from the reference image in order to have an image to image co-registration. The pixel alignment process include:</p>
+        <p>This Qgis processing generates a new raster file base on the target image with all \
+        properties from the reference image. This process don't check the content of the pixel, this process adjusts \
+        the target image to the closest pixel alignment based on the reference image. The basic pixel alignment process include:</p>
         <ul>
         <li>- Reprojection (only if needed)</li>
         <li>- Resampling (only if pixel sizes are different)</li>
         <li>- Extent/bounds adjustment</li>
-        <li>- Apply a mask as an area of interest (optional)</li>
-        </ul>'''
+        </ul>
+        <p>For a real image to image co-registration use the other two algorithms instead</p>'''
         return html_help
 
     def createInstance(self):
