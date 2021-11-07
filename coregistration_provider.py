@@ -24,6 +24,7 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.core import QgsProcessingProvider
 from Coregistration.basic_pixel_alignment_algorithm import CoregistrationAlgorithm
 from Coregistration.automated_global_coregistration_algorithm import AutomatedGlobalCoregistrationAlgorithm
+from Coregistration.automated_local_coregistration_algorithm import AutomatedLocalCoregistrationAlgorithm
 from . import resources
 
 # plugin path
@@ -51,6 +52,7 @@ class CoregistrationProvider(QgsProcessingProvider):
         """
         self.addAlgorithm(CoregistrationAlgorithm())
         self.addAlgorithm(AutomatedGlobalCoregistrationAlgorithm())
+        self.addAlgorithm(AutomatedLocalCoregistrationAlgorithm())
 
     def id(self):
         """
