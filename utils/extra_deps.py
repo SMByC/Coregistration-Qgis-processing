@@ -58,7 +58,7 @@ DATA_HOME = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file_
 INSTALL_PREFIX = os.path.join(DATA_HOME, 'python' + ''.join(PY_MAJORMINOR))
 LOG_PATH = os.path.join(INSTALL_PREFIX, 'pip.log')
 
-# OLD - CLEAN AND DELETE
+# TODO: OLD - CLEAN AND DELETE
 # Use a custom folder for the packages to avoid polluting the per-user site-packages.
 # This also avoids any permission issues.
 # Windows: ~\AppData\Local\coregistration\python<xy>

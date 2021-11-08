@@ -22,17 +22,15 @@ Detects and corrects global and local X/Y shifts misregistrations between two in
         
 It is designed to robustly handle the typical difficulties of multi-sensoral/multi-temporal images. Clouds are automatically handled by the implemented outlier detection algorithms [1].
 
-*[1] This algorithm use Arosics software developed by Daniel Scheffler, for more info <a href="https://danschef.git-pages.gfz-potsdam.de/arosics/doc/">url</a> and <a href="https://doi.org/10.3390/rs9070676">paper</a>.
-
 #### Global
 
 This global algorithm is useful when the target image requires just one shifts in distance and direction in the whole image.
 
 #### Local
 
-This local algorithm is useful when the target image requires different pixel shifts in distances and directions. The precision of this is based on mainly in two input parameters: tie point grid resolution and matching window size.
-        
-This is significantly more comprehensive and slower than global algorithm.
+This local algorithm is useful when the target image requires different pixel shifts in distances and directions. The precision of this is based on mainly in two input parameters: tie point grid resolution and matching window size. This is significantly more comprehensive and slower than global algorithm.
+
+*[1] These algorithms use Arosics software developed by Daniel Scheffler, for more info <a href="https://danschef.git-pages.gfz-potsdam.de/arosics/doc/">url</a> and <a href="https://doi.org/10.3390/rs9070676">paper</a>.
 
 ## Installation
 
@@ -41,7 +39,7 @@ The plugin can be installed using the QGIS Plugin Manager, go into Qgis to `Plug
 The plugin will be available in the `Processing Toolbox` or you can search and open it directly from the `Statusbar`.
 
 > *Dependencies:* 
-    This plugin requires additional Python packages (arosics and its depends), that are generally not part of QGIS's Python. You can either install this package in the system before install the plugin or let the plugin install it for you in a local folder this is automatic in the installation process.
+    This plugin requires additional Python packages (arosics and its depends), that are generally not part of QGIS's Python. You can either install this package in the system before install the plugin or let the plugin install it for you in a local folder automatically in the installation process.
 
 ## Source code
 
