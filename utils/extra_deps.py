@@ -53,6 +53,12 @@ DEPS = [
     Dependency('arosics', install=None, min=None),
 ]
 
+# use the plugin folder directory for install the extra libs
+DATA_HOME = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), "extlibs"))
+INSTALL_PREFIX = os.path.join(DATA_HOME, 'python' + ''.join(PY_MAJORMINOR))
+LOG_PATH = os.path.join(INSTALL_PREFIX, 'pip.log')
+
+# OLD - CLEAN AND DELETE
 # Use a custom folder for the packages to avoid polluting the per-user site-packages.
 # This also avoids any permission issues.
 # Windows: ~\AppData\Local\coregistration\python<xy>
@@ -67,8 +73,8 @@ else:
     DATA_HOME = os.getenv('XDG_DATA_HOME')
     if not DATA_HOME:
         DATA_HOME = os.path.join(os.path.expanduser('~'), '.local', 'share')
-INSTALL_PREFIX = os.path.join(DATA_HOME, 'coregistration', 'python' + ''.join(PY_MAJORMINOR))
-LOG_PATH = os.path.join(INSTALL_PREFIX, 'pip.log')
+INSTALL_PREFIX_OLD = os.path.join(DATA_HOME, 'coregistration')
+shutil.rmtree(INSTALL_PREFIX_OLD, ignore_errors=True)
 
 
 def load_install_extra_deps():
