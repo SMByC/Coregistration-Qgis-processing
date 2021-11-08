@@ -253,7 +253,7 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         feedback.pushCommandInfo("Running Arosics...")
         CR = COREG(img_ref, img_tgt, path_out=output_file, align_grids=align_grids, match_gsd=match_gsd,
                    wp=(wp_x, wp_y), ws=(ws_x, ws_y), resamp_alg_deshift=resampling_method,
-                   max_shift=max_shift, max_iter=15)
+                   max_shift=max_shift, max_iter=15, out_crea_options=["WRITE_METADATA=NO"])
         CR.correct_shifts()
 
         feedback.pushInfo("DONE\n")
