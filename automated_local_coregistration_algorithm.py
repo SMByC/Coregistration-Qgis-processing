@@ -91,8 +91,6 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         matching window size.
         
         This is significantly more comprehensive and slower than global algorithm. 
-        
-        To check the complete log of the process, open the Python Console.
 
         [1] This algorithm use Arosics software developed by Daniel Scheffler, for more info \
         <a href="https://danschef.git-pages.gfz-potsdam.de/arosics/doc/">url</a> and \
@@ -250,7 +248,8 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         feedback.pushInfo("Image to image Co-Registration:")
         feedback.pushInfo("\nProcessing file: " + img_tgt)
 
-        feedback.pushCommandInfo("Running Arosics...")
+        feedback.pushInfo("\nPerform automatic subpixel co-registration with Arosics...")
+        feedback.pushInfo("(To check the complete log of the process, open the Python Console)...\n")
         CRL = COREG_LOCAL(img_ref, img_tgt, path_out=output_file, align_grids=align_grids, match_gsd=match_gsd,
                           grid_res=grid_res, window_size=(window_size, window_size),
                           resamp_alg_deshift=resampling_method, max_shift=max_shift, max_iter=15,

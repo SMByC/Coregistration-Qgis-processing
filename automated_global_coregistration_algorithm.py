@@ -88,8 +88,6 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         
         This global algorithm is useful when the target image requires just one shifts in distance and direction \
         in the whole image.
-        
-        To check the complete log of the process, open the Python Console.
 
         [1] This algorithm use Arosics software developed by Daniel Scheffler, for more info \
         <a href="https://danschef.git-pages.gfz-potsdam.de/arosics/doc/">url</a> and \
@@ -250,7 +248,8 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         feedback.pushInfo("Image to image Co-Registration:")
         feedback.pushInfo("\nProcessing file: " + img_tgt)
 
-        feedback.pushCommandInfo("Running Arosics...")
+        feedback.pushInfo("\nPerform automatic subpixel co-registration with Arosics...")
+        feedback.pushInfo("(To check the complete log of the process, open the Python Console)...\n")
         CR = COREG(img_ref, img_tgt, path_out=output_file, align_grids=align_grids, match_gsd=match_gsd,
                    wp=(wp_x, wp_y), ws=(ws_x, ws_y), resamp_alg_deshift=resampling_method,
                    max_shift=max_shift, max_iter=15, out_crea_options=["WRITE_METADATA=NO"])
