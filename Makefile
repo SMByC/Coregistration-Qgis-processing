@@ -36,23 +36,27 @@ LOCALES =
 # translation
 SOURCES = \
 	__init__.py \
-	Coregistration_algorithm.py \
-	Coregistration_plugin.py \
-	Coregistration_provider.py
+	automated_global_coregistration_algorithm.py \
+	automated_local_coregistration_algorithm.py \
+	basic_pixel_alignment_algorithm.py \
+	coregistration_plugin.py \
+	coregistration_provider.py 
 
 PLUGINNAME = Coregistration
 
 PY_FILES = \
 	__init__.py \
-	Coregistration_algorithm.py \
-	Coregistration_plugin.py \
-	Coregistration_provider.py
+	automated_global_coregistration_algorithm.py \
+	automated_local_coregistration_algorithm.py \
+	basic_pixel_alignment_algorithm.py \
+	coregistration_plugin.py \
+	coregistration_provider.py
 
 UI_FILES = 
 
 EXTRAS = metadata.txt 
 
-EXTRA_DIRS = icons
+EXTRA_DIRS = icons utils
 
 COMPILED_RESOURCE_FILES = resources.py
 
@@ -125,7 +129,6 @@ deploy: compile doc transcompile
 	# Copy extra directories if any
 	cp -vfr $(EXTRA_DIRS) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 
-
 # The dclean target removes compiled python files from plugin directory
 # also deletes any .git entry
 dclean:
@@ -136,7 +139,6 @@ dclean:
 	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname "*.pyc" -delete
 	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname ".git" -prune -exec rm -Rf {} \;
 	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname "__pycache__" -prune -exec rm -Rf {} \;
-
 
 derase:
 	@echo
