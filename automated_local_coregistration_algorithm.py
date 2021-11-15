@@ -19,6 +19,7 @@
  ***************************************************************************/
 """
 import os
+import platform
 
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QCoreApplication
@@ -225,7 +226,21 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         """
         Here is where the processing itself takes place.
         """
-        from arosics import COREG_LOCAL
+        try:
+            from arosics import COREG_LOCAL
+        except:
+            if platform.system() != 'Windows':
+                # load/install extra python dependencies
+                from Coregistration.utils.load_deps import init_dependencies
+                init_dependencies()
+            try:
+                from arosics import COREG_LOCAL
+            except:
+                msg = "\nError loading Arosics, this plugin requires additional Python packages to work. " \
+                      "Read the install instructions here:\n\n" \
+                      "https://github.com/SMByC/Coregistration-Qgis-processing#installation\n\n"
+                feedback.reportError(msg, fatalError=True)
+                return {}
 
         def get_inputfilepath(layer):
             return os.path.realpath(layer.source().split("|layername")[0])
