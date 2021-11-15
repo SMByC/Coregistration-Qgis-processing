@@ -253,7 +253,7 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         CRL = COREG_LOCAL(img_ref, img_tgt, path_out=output_file, align_grids=align_grids, match_gsd=match_gsd,
                           grid_res=grid_res, window_size=(window_size, window_size),
                           resamp_alg_deshift=resampling_method, max_shift=max_shift, max_iter=15,
-                          out_crea_options=["WRITE_METADATA=NO"])
+                          fmt_out="GTiff", out_crea_options=["WRITE_METADATA=NO"])
         CRL.correct_shifts()
 
         feedback.pushInfo("DONE\n")
