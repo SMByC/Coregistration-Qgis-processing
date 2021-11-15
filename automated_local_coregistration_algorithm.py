@@ -231,8 +231,10 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         except:
             if platform.system() != 'Windows':
                 # load/install extra python dependencies
-                from Coregistration.utils.load_deps import init_dependencies
-                init_dependencies()
+                from Coregistration.utils.extra_deps import load_install_extra_deps
+                feedback.pushInfo("Installing dependencies...")
+                for msg_type, msg_val in load_install_extra_deps():
+                    print(str(msg_val))
             try:
                 from arosics import COREG_LOCAL
             except:
