@@ -266,7 +266,7 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         feedback.pushInfo("\nProcessing file: " + img_tgt)
 
         feedback.pushInfo("\nPerform automatic subpixel co-registration with Arosics...")
-        feedback.pushInfo("(To check the complete log of the process, open the Python Console)...\n")
+        feedback.pushInfo("\n(To check the complete log of the process, open the Python Console)...")
         if platform.system() == "Windows":
             feedback.reportError("\nWarning: in Windows due to restrictions to enable multiprocessing inside Qgis, "
                                  "the process could take longer. Continue with one core ...\n", fatalError=False)
