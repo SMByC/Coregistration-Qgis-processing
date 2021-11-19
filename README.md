@@ -1,6 +1,6 @@
 # Coregistration
 
-Image to image co-registration processing Qgis plugin.
+Image to image automatic co-registration processing Qgis plugin. This plugin use Arosics to perform automatic subpixel co-registration of image datasets based on an image matching approach working in the frequency domain.
 
 ![](docs/img/coregistration.png)
 
@@ -14,7 +14,7 @@ This Qgis processing generates a new raster file base on the target image with a
 * Resampling (only if pixel sizes are different)
 * Extent/bounds adjustment
 
-For a real image to image co-registration use the other two algorithms instead
+For a real image to image co-registration use the following two algorithms instead
 
 ### Automated global and local image to image co-registration
 
@@ -39,7 +39,17 @@ The plugin can be installed using the QGIS Plugin Manager, go into Qgis to `Plug
 The plugin will be available in the `Processing Toolbox` or you can search and open it directly from the `Statusbar`.
 
 > *Dependencies:* 
-    This plugin requires additional Python packages (arosics and its depends), that are generally not part of QGIS's Python. You can either install this package in the system before install the plugin or let the plugin install it for you in a local folder automatically in the installation process.
+    This plugin requires additional Python packages (`Arosics` and its depends), that are generally not part of QGIS's Python. For Windows users this plugin includes all the dependencies inside it, for Linux/Mac users the plugin try to install all the dependencies for you in a local folder automatically in the installation process.
+
+### Alternative installation
+
+If you have problems with the dependencies, the best options to solve it is use [conda](https://docs.conda.io/en/latest/miniconda.html) and install Arosics and Qgis (from the conda shell):
+
+```bash
+conda install -c conda-forge arosics qgis
+```
+
+After that open Qgis from the shell with `qgis` command.
 
 ## Source code
 
