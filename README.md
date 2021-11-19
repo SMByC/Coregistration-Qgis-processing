@@ -49,7 +49,11 @@ If you have problems with the dependencies, the best options to solve it is use 
 conda install -c conda-forge arosics qgis
 ```
 
-After that open Qgis from the shell with `qgis` command.
+After that open Qgis from the shell with `qgis` command. Then install the plugin.
+
+### To uninstall, update or reinstall (only in Windows)
+
+First disable the plugin, restart Qgis, and then uninstall, update or reinstall the plugin. Finally enable it again.
 
 ## Source code
 
