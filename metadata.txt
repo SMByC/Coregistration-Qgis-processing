@@ -1,9 +1,9 @@
 [general]
 name=Coregistration
-description=Image to image co-registration processing plugin, converting the target image using a pixel alignment process based on a reference image.
-about=Image to image co-registration processing plugin, converting the target image using a pixel alignment process based on a reference image. It generates a new raster file base on the target image with all properties from the reference image in order to have an image to image co-registration.
+description=Image to image automatic co-registration processing Qgis plugin.
+about=This plugin use Arosics to perform automatic subpixel co-registration of image datasets based on an image matching approach working in the frequency domain.
 
-version=21.10.6
+version=21.11.18
 qgisMinimumVersion=3.0
 qgisMaximumVersion=3.99
 
