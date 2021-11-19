@@ -239,6 +239,8 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
                 from arosics import COREG_LOCAL
             except:
                 msg = "\nError loading Arosics, this plugin requires additional Python packages to work. " \
+                      "For Windows users, download and reinstall the plugin with all the libs inside from here:\n\n" \
+                      "https://bit.ly/3FwGWS2\n\n" \
                       "Read the install instructions here:\n\n" \
                       "https://github.com/SMByC/Coregistration-Qgis-processing#installation\n\n"
                 feedback.reportError(msg, fatalError=True)

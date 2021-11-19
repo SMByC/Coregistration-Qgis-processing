@@ -33,10 +33,11 @@ def pre_init_plugin():
     #     extlib_path = 'extlibs_linux'
     extra_libs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), extlib_path))
 
-    # add to python path
-    site.addsitedir(extra_libs_path)
-    # pkg_resources doesn't listen to changes on sys.path.
-    pkg_resources.working_set.add_entry(extra_libs_path)
+    if os.path.isdir(extra_libs_path):
+        # add to python path
+        site.addsitedir(extra_libs_path)
+        # pkg_resources doesn't listen to changes on sys.path.
+        pkg_resources.working_set.add_entry(extra_libs_path)
 
 
 # noinspection PyPep8Naming

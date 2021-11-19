@@ -39,7 +39,7 @@ The plugin can be installed using the QGIS Plugin Manager, go into Qgis to `Plug
 The plugin will be available in the `Processing Toolbox` or you can search and open it directly from the `Statusbar`.
 
 > *Dependencies:* 
-    This plugin requires additional Python packages (`Arosics` and its depends), that are generally not part of QGIS's Python. For Windows users this plugin includes all the dependencies inside it, for Linux/Mac users the plugin try to install all the dependencies for you in a local folder automatically in the installation process.
+    This plugin requires additional Python packages (`Arosics` and its depends), that are generally not part of QGIS's Python. For Windows users download and reinstall the plugin with all the libs inside from [here](https://bit.ly/3FwGWS2), for Linux/Mac users the plugin try to install all the dependencies for you in a local folder automatically in the installation process.
 
 ### Alternative installation
 

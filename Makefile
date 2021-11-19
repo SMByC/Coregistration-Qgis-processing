@@ -56,7 +56,8 @@ UI_FILES =
 
 EXTRAS = metadata.txt 
 
-EXTRA_DIRS = icons utils extlibs_windows
+EXTRA_DIRS_FULL = icons utils extlibs_windows
+EXTRA_DIRS = icons utils
 
 COMPILED_RESOURCE_FILES = resources.py
 
