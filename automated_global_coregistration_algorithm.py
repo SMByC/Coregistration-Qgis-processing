@@ -198,7 +198,7 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
                 self.RESAMPLING,
                 self.tr('The resampling algorithm to be used for shift correction (if necessary)'),
                 options=[i[0] for i in self.resampling_methods],
-                defaultValue=0,
+                defaultValue=2,
                 optional=False
             )
         parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
