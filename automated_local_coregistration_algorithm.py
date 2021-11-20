@@ -189,7 +189,7 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
                 self.WINDOW_SIZE,
                 self.tr('Custom matching window size (width and height in pixel units)'),
                 type=QgsProcessingParameterNumber.Integer,
-                defaultValue="256",
+                defaultValue=256,
             )
         )
 
