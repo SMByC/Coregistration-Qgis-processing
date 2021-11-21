@@ -20,13 +20,12 @@
 """
 import os
 import platform
-from osgeo import gdal
 
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import (QgsProcessingAlgorithm, QgsProcessingParameterRasterDestination, QgsProcessingParameterRasterLayer,
                        QgsProcessingParameterNumber, QgsProcessingParameterDefinition, QgsProcessingParameterEnum,
-                       QgsProcessingParameterExtent, QgsProcessingParameterBoolean)
+                       QgsProcessingParameterPoint, QgsProcessingParameterBoolean)
 
 
 class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
@@ -43,7 +42,8 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
     INPUT = 'INPUT'
     ALIGN_GRIDS = "ALIGN_GRIDS"
     MATCH_GSD = "MATCH_GSD"
-    MATCHING_WINDOW = 'MATCHING_WINDOW'
+    MATCHING_WINDOW_CENTER = 'MATCHING_WINDOW_CENTER'
+    MATCHING_WINDOW_SIZE = 'MATCHING_WINDOW_SIZE'
     MAX_SHIFT = 'MAX_SHIFT'
     RESAMPLING = 'RESAMPLING'
     MASK = 'MASK'
@@ -172,15 +172,25 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
             )
         )
 
-        parameter = \
-            QgsProcessingParameterExtent(
-                self.MATCHING_WINDOW,
-                self.tr('Custom matching window (default: automatic overlap area)'),
+        self.addParameter(
+            QgsProcessingParameterPoint(
+                self.MATCHING_WINDOW_CENTER,
+                self.tr('Pick a point on the map to choose the center of the custom matching window\n'
+                        '(empty for default: central position of image overlap)'),
                 defaultValue=None,
                 optional=True
             )
-        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
-        self.addParameter(parameter)
+        )
+
+        self.addParameter(
+            QgsProcessingParameterNumber(
+                self.MATCHING_WINDOW_SIZE,
+                self.tr('Custom matching window size in pixel units'),
+                type=QgsProcessingParameterNumber.Integer,
+                defaultValue=256,
+                optional=False
+            )
+        )
 
         parameter = \
             QgsProcessingParameterNumber(
@@ -244,20 +254,15 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         align_grids = self.parameterAsBoolean(parameters, self.ALIGN_GRIDS, context)
         match_gsd = self.parameterAsBoolean(parameters, self.MATCH_GSD, context)
 
-        matching_window = self.parameterAsExtent(parameters, self.MATCHING_WINDOW, context,
-                                                 self.parameterAsRasterLayer(parameters, self.IMG_REF, context).crs())
-        # extract some info from target image
-        gdal_img_tgt = gdal.Open(img_tgt, gdal.GA_ReadOnly)
-        min_x, x_res, x_skew, max_y, y_skew, y_res = gdal_img_tgt.GetGeoTransform()
-        if matching_window.isNull():
+        matching_window_center = self.parameterAsPoint(parameters, self.MATCHING_WINDOW_CENTER, context,
+                                                self.parameterAsRasterLayer(parameters, self.IMG_REF, context).crs())
+        if matching_window_center.isEmpty():
             wp_x = wp_y = None
-            ws_x = int(abs(float(x_res)))
-            ws_y = int(abs(float(y_res)))
         else:
-            wp_x = matching_window.center().x()
-            wp_y = matching_window.center().y()
-            ws_x = int(abs(round(matching_window.width()/x_res, 0)))
-            ws_y = int(abs(round(matching_window.height()/y_res, 0)))
+            wp_x = matching_window_center.x()
+            wp_y = matching_window_center.y()
+
+        ws_x = ws_y = self.parameterAsInt(parameters, self.MATCHING_WINDOW_SIZE, context)
 
         max_shift = self.parameterAsInt(parameters, self.MAX_SHIFT, context)
         resampling_method = self.resampling_methods[self.parameterAsEnum(parameters, self.RESAMPLING, context)][1]
@@ -276,8 +281,6 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         CR.correct_shifts()
 
         feedback.pushInfo("DONE\n")
-
-        del gdal_img_tgt
 
         return {self.OUTPUT: output_file}
 
