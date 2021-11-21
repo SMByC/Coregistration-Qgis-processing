@@ -39,7 +39,13 @@ The plugin can be installed using the QGIS Plugin Manager, go into Qgis to `Plug
 The plugin will be available in the `Processing Toolbox` or you can search and open it directly from the `Statusbar`.
 
 > *Dependencies:* 
-    This plugin requires additional Python packages (`Arosics` and its depends), that are generally not part of QGIS's Python. For Windows users download and reinstall the plugin with all the libs inside from [here](https://bit.ly/3FwGWS2), for Linux/Mac users the plugin try to install all the dependencies for you in a local folder automatically in the installation process.
+    This plugin requires additional Python packages (`Arosics` and its depends), that are generally not part of QGIS's Python. 
+
+#### Windows
+For Windows users download and reinstall the plugin with [this zip all-in-one](https://bit.ly/3FwGWS2) with all the libs and dependencies inside. This should work directly without any additional steps with a Qgis version >= 3.18 on a 64bit Windows system, if you have issues with this try with the alternative installation below.
+
+#### Linux/Mac 
+The plugin try to install all the dependencies for you in a local folder automatically in the installation process. If you want to minimize the local installation of dependencies of this plugin or fix dependency issues, a good idea is before install the plugin, install the following packages in your system: `matplotlib`, `cartopy`, `geopandas`, `plotly`, `scikit-image`
 
 ### Alternative installation
 
