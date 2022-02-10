@@ -44,6 +44,8 @@ The plugin will be available in the `Processing Toolbox` or you can search and o
 #### Windows
 For Windows users download and reinstall the plugin with [this zip all-in-one](https://drive.google.com/uc?export=download&confirm=gzst&id=1RdtkZnxR53xFpvgdssampyvSiANwiZdZ) with all the libs and dependencies inside. This should work directly without any additional steps with a Qgis version >= 3.18 on a 64bit Windows system, if you have issues with this try with the alternative installation below.
 
+> *Note:* For uninstall/reinstall/update this plugin using this all-in-one in Windows, you must first deactivate, restart Qgis and uninstall/reinstall/update it.
+
 #### Linux/Mac 
 The plugin try to install all the dependencies for you in a local folder automatically in the installation process. If you want to minimize the local installation of dependencies of this plugin or fix dependency issues, a good idea is before install the plugin, install the following packages in your system: `matplotlib`, `cartopy`, `geopandas`, `plotly`, `scikit-image`
 
