@@ -42,7 +42,7 @@ The plugin will be available in the `Processing Toolbox` or you can search and o
     This plugin requires additional Python packages (`Arosics` and its depends), that are generally not part of QGIS's Python. 
 
 #### Windows
-For Windows users download and reinstall the plugin with [this zip all-in-one](https://drive.google.com/uc?export=download&confirm=gzst&id=1RdtkZnxR53xFpvgdssampyvSiANwiZdZ) with all the libs and dependencies inside. This should work directly without any additional steps with a Qgis version >= 3.18 on a 64bit Windows system, if you have issues with this try with the alternative installation below.
+For Windows users download and reinstall the plugin with [this zip all-in-one](https://drive.google.com/uc?export=download&confirm=gzst&id=1RdtkZnxR53xFpvgdssampyvSiANwiZdZ) [(alternative link)](https://www.dropbox.com/s/b11w3kqufsrmvdj/Coregistration.zip?dl=1) with all the libs and dependencies inside. This should work directly without any additional steps with a Qgis version >= 3.18 on a 64bit Windows system, if you have issues with this try with the alternative installation below.
 
 > *Note:* For uninstall/reinstall/update this plugin using this all-in-one in Windows, you must first deactivate, restart Qgis and uninstall/reinstall/update it.
 
