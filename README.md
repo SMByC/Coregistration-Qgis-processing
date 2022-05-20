@@ -16,17 +16,17 @@ This Qgis processing generates a new raster file base on the target image with a
 
 For a real image to image co-registration use the following two algorithms instead
 
-### Automated global and local image to image co-registration
+## Automated global and local image to image co-registration
 
 Detects and corrects global and local X/Y shifts misregistrations between two input images in the subpixel scale using the content of the pixels in the matching window. Perform automatic subpixel co-registration of image datasets based on an image matching approach working in the frequency domain, combined with a multistage workflow for effective detection of false-positives [1].
         
 It is designed to robustly handle the typical difficulties of multi-sensoral/multi-temporal images. Clouds are automatically handled by the implemented outlier detection algorithms [1].
 
-#### (2) Global
+### (2) Global
 
 This global algorithm is useful when the target image requires just one shifts in distance and direction in the whole image.
 
-#### (3) Local
+### (3) Local
 
 This local algorithm is useful when the target image requires different pixel shifts in distances and directions. The precision of this is based on mainly in two input parameters: tie point grid resolution and matching window size. This is significantly more comprehensive and slower than global algorithm.
 
@@ -42,9 +42,9 @@ The plugin will be available in the `Processing Toolbox` or you can search and o
     This plugin requires additional Python packages (`Arosics` and its depends), that are generally not part of QGIS's Python. 
 
 #### Windows
-For Windows users download and install the plugin with [this zip all-in-one](https://drive.google.com/uc?export=download&confirm=gzst&id=1RdtkZnxR53xFpvgdssampyvSiANwiZdZ) [(alternative link)](https://www.dropbox.com/s/b11w3kqufsrmvdj/Coregistration.zip?dl=1) with all the libs and dependencies inside. This should work directly without any additional steps with a Qgis version >= 3.18 on a 64bit Windows system, if you have issues with this try with the alternative installation below.
+For Windows users download and install the plugin using the zip `Coregistration_all_in_one_win.zip` in [releases](https://github.com/SMByC/Coregistration-Qgis-processing/releases) (alternative [link](https://drive.google.com/uc?export=download&confirm=gzst&id=1RdtkZnxR53xFpvgdssampyvSiANwiZdZ)) with all the libs and dependencies inside. This should work directly without any additional steps with a Qgis version >= 3.18 on a 64bit Windows system, if you have issues with this try with the alternative installation below.
 
-> *Note:* For uninstall/reinstall/update this plugin using this all-in-one in Windows, you must first deactivate, restart Qgis, uninstall/reinstall/update it and finally activate it again.
+> *Note:* For uninstall/update this plugin using this all-in-one in Windows, you must first deactivate, restart Qgis, uninstall/update it and finally activate it again.
 
 #### Linux/Mac 
 The plugin try to install all the dependencies for you in a local folder automatically in the installation process. If you want to minimize the local installation of dependencies of this plugin or fix dependency issues, a good idea is before install the plugin, install the following packages in your system: `matplotlib`, `cartopy`, `geopandas`, `plotly`, `scikit-image`
@@ -58,10 +58,6 @@ conda install -c conda-forge arosics qgis
 ```
 
 After that open Qgis from the shell with `qgis` command. Then install the plugin.
-
-### To uninstall, update or reinstall (only in Windows)
-
-First disable the plugin, restart Qgis, and then uninstall, update or reinstall the plugin. Finally enable it again.
 
 ## Source code
 
