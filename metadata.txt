@@ -16,7 +16,7 @@ repository=https://github.com/SMByC/Coregistration-Qgis-processing
 
 changelog=
 
-tags=raster,processing,co-registration
+tags=raster,processing,co-registration,AROSICS
 
 external_deps=
 
