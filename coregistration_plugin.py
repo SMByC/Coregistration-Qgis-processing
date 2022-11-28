@@ -35,11 +35,10 @@ if cmd_folder not in sys.path:
 class CoregistrationPlugin:
 
     def __init__(self):
-        self.provider = None
+        self.provider = CoregistrationProvider()
 
     def initProcessing(self):
         """Init Processing provider for QGIS >= 3.8."""
-        self.provider = CoregistrationProvider()
         QgsApplication.processingRegistry().addProvider(self.provider)
 
     def initGui(self):
