@@ -19,21 +19,36 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Set up Conda
+      if: matrix.os == 'ubuntu-latest'
       run: |
-        if [ "$RUNNER_OS" == "Windows" ]; then
-          choco install miniconda3 -y -params '/AddToPath:1 /D:\<installation_path>'
-          export PATH="$PATH:<installation_path>"
-        elif [ "$RUNNER_OS" == "macOS" ]; then
-          wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
-          bash Miniconda3-latest-MacOSX-x86_64.sh -b -p $HOME/miniconda
-          export PATH="$HOME/miniconda/bin:$PATH"
-        elif [ "$RUNNER_OS" == "Linux" ]; then
-          wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-          bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
-          export PATH="$HOME/miniconda/bin:$PATH"
-        fi
+        wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+        bash miniconda.sh -b -p $HOME/miniconda
+        source "$HOME/miniconda/etc/profile.d/conda.sh"
+        hash -r
         conda config --set always_yes yes --set changeps1 no
         conda update -q conda
+        conda info -a
+
+    - name: Set up Conda
+      if: matrix.os == 'macOS-latest'
+      run: |
+        wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh
+        bash miniconda.sh -b -p $HOME/miniconda
+        source "$HOME/miniconda/etc/profile.d/conda.sh"
+        hash -r
+        conda config --set always_yes yes --set changeps1 no
+        conda update -q conda
+        conda info -a
+
+    - name: Set up Conda
+      if: matrix.os == 'windows-latest'
+      run: |
+        choco install miniconda3 --params="'/AddToPath:1'"
+        source "$HOME/miniconda/etc/profile.d/conda.sh"
+        hash -r
+        conda config --set always_yes yes --set changeps1 no
+        conda update -q conda
+        conda info -a
 
     - name: Create Conda environment and install libraries
       run: |
@@ -41,16 +56,18 @@ jobs:
         conda activate myenv
         conda install -c conda-forge gdal -y
 
-    - name: Zip Conda environment
+    - name: Zip the site-packages
+      if : matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
       run: |
-        if [ "$RUNNER_OS" == "Windows" ]; then
-          7z a conda_env.zip $CONDA_PREFIX
-        else
-          zip -r conda_env.zip $CONDA_PREFIX
-        fi
+          zip -r extlibs_${{ matrix.os }}_py${{ matrix.python-version }}.zip $CONDA_PREFIX/lib/python${{ matrix.python-version }}/site-packages
 
-    - name: Upload Conda environment artifact
+    - name: Zip the site-packages
+      if : matrix.os == 'windows-latest'
+      run: |
+          zip -r extlibs_${{ matrix.os }}_py${{ matrix.python-version }}.zip $CONDA_PREFIX/Lib/site-packages
+
+    - name: Upload extlibs zip artifact
       uses: actions/upload-artifact@v2
       with:
-        name: conda-environment
-        path: conda_env.zip
+        name: extlibs_${{ matrix.os }}_py${{ matrix.python-version }}
+        path: ./extlibs_${{ matrix.os }}_py${{ matrix.python-version }}.zip
