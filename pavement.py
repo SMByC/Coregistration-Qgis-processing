@@ -74,9 +74,9 @@ def setup():
     os.environ['PYTHONPATH'] = ext_libs.abspath()
     for req in reqs:
         if platform.system() == "Windows":
-            sh('pip install -U -t "{ext_libs}" "{dep}"'.format(ext_libs=ext_libs.abspath(), dep=req))
+            sh('pip install -U -t "{ext_libs}" {dep}'.format(ext_libs=ext_libs.abspath(), dep=req))
         else:
-            sh('pip3 install -U -t "{ext_libs}" "{dep}"'.format(ext_libs=ext_libs.abspath(), dep=req))
+            sh('pip3 install -U -t "{ext_libs}" {dep}'.format(ext_libs=ext_libs.abspath(), dep=req))
 
     # remove some libraries that are not needed
     list_of_dirs = ["numpy*"]
