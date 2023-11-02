@@ -1,64 +1,56 @@
-# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+name: Extralibs Packaging
 
-name: package-plugin
-
-on: workflow_dispatch
+on: [workflow_dispatch]
 
 jobs:
   build:
-
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         python-version: ["3.11"]
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install paver
-    # Add GDAL installation steps for Ubuntu
-    - name: Install GDAL on Ubuntu
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        sudo apt update
-        sudo apt install gdal-bin libgdal-dev python3-gdal
-    # Add GDAL installation steps for macOS
-    - name: Install GDAL on macOS
-      if: matrix.os == 'macos-latest'
-      run: |
-        brew update
-        brew install gdal
-    - name: Package QGIS Plugin
-      run: |
-        paver setup
-        paver package_extlibs
-#        paver package
 
-#    - name: Upload artifact full-plugin by OS
-#      uses: actions/upload-artifact@v3
-#      with:
-#        name: Coregistration_${{ matrix.os }}
-#        path: ./Coregistration_*.zip
+    - name: Set up Conda
+      run: |
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          choco install miniconda3 -y -params '/AddToPath:1 /D:\<installation_path>'
+          export PATH="$PATH:<installation_path>"
+        if [[ "$RUNNER_OS" == "macOS" ]]; then
+          wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+          bash Miniconda3-latest-MacOSX-x86_64.sh -b -p $HOME/miniconda
+          export PATH="$HOME/miniconda/bin:$PATH"
+        else
+          wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+          bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
+          export PATH="$HOME/miniconda/bin:$PATH"
+        fi
+        conda config --set always_yes yes --set changeps1 no
+        conda update -q conda
 
-    - name: Upload artifact extlibs by OS
-      uses: actions/upload-artifact@v3
+    - name: Create Conda environment and install libraries
+      run: |
+        conda create -n myenv python=${{ matrix.python-version }} -y
+        conda activate myenv
+        conda install -c conda-forge gdal -y
+
+    - name: Zip Conda environment
+      run: |
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          7z a conda_env.zip $CONDA_PREFIX
+        else
+          zip -r conda_env.zip $CONDA_PREFIX
+        fi
+
+    - name: Upload Conda environment artifact
+      uses: actions/upload-artifact@v2
       with:
-        name: extlibs_${{ matrix.os }}_py${{ matrix.python-version }}
-        path: ./extlibs_*_py${{ matrix.python-version }}.zip
-
-  package:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v3
-        
-        
+        name: conda-environment
+        path: conda_env.zip
