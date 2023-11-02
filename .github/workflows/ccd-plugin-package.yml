@@ -6,68 +6,38 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ["3.11"]
-        os: [ubuntu-latest, windows-latest, macOS-latest]
-
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+        python-version: ["3.9"]
     steps:
-    - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          python-version: ${{ matrix.python-version }}
+          channels: conda-forge
+          activate-environment: conda_env
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Create Conda environment and install libraries
+        shell: bash -el {0}
+        run: |
+          conda install -c conda-forge gdal -y
 
-    - name: Set up Conda
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-        bash miniconda.sh -b -p $HOME/miniconda
-        source "$HOME/miniconda/etc/profile.d/conda.sh"
-        hash -r
-        conda config --set always_yes yes --set changeps1 no
-        conda update -q conda
-        conda info -a
+      - name: Zip the site-packages
+        shell: bash -el {0}
+        if : matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
+        run: |
+            echo "Conda prefix $CONDA_PREFIX"
+            zip -r extlibs_${{ matrix.os }}_py${{ matrix.python-version }}.zip $CONDA_PREFIX/lib/python${{ matrix.python-version }}/site-packages
 
-    - name: Set up Conda
-      if: matrix.os == 'macOS-latest'
-      run: |
-        wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh
-        bash miniconda.sh -b -p $HOME/miniconda
-        source "$HOME/miniconda/etc/profile.d/conda.sh"
-        hash -r
-        conda config --set always_yes yes --set changeps1 no
-        conda update -q conda
-        conda info -a
+      - name: Zip the site-packages
+        shell: bash -el {0}
+        if : matrix.os == 'windows-latest'
+        run: |
+            zip -r extlibs_${{ matrix.os }}_py${{ matrix.python-version }}.zip $CONDA_PREFIX/Lib/site-packages
 
-    - name: Set up Conda
-      if: matrix.os == 'windows-latest'
-      run: |
-        choco install miniconda3 --params="'/AddToPath:1'"
-        source "$HOME/miniconda/etc/profile.d/conda.sh"
-        hash -r
-        conda config --set always_yes yes --set changeps1 no
-        conda update -q conda
-        conda info -a
-
-    - name: Create Conda environment and install libraries
-      run: |
-        conda create -n myenv python=${{ matrix.python-version }} -y
-        conda activate myenv
-        conda install -c conda-forge gdal -y
-
-    - name: Zip the site-packages
-      if : matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
-      run: |
-          zip -r extlibs_${{ matrix.os }}_py${{ matrix.python-version }}.zip $CONDA_PREFIX/lib/python${{ matrix.python-version }}/site-packages
-
-    - name: Zip the site-packages
-      if : matrix.os == 'windows-latest'
-      run: |
-          zip -r extlibs_${{ matrix.os }}_py${{ matrix.python-version }}.zip $CONDA_PREFIX/Lib/site-packages
-
-    - name: Upload extlibs zip artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: extlibs_${{ matrix.os }}_py${{ matrix.python-version }}
-        path: ./extlibs_${{ matrix.os }}_py${{ matrix.python-version }}.zip
+      - name: Upload extlibs zip artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: extlibs_${{ matrix.os }}_py${{ matrix.python-version }}
+          path: ./extlibs_${{ matrix.os }}_py${{ matrix.python-version }}.zip
