@@ -20,14 +20,14 @@ jobs:
 
     - name: Set up Conda
       run: |
-        if [[ "$RUNNER_OS" == "Windows" ]]; then
+        if [ "$RUNNER_OS" == "Windows" ]; then
           choco install miniconda3 -y -params '/AddToPath:1 /D:\<installation_path>'
           export PATH="$PATH:<installation_path>"
-        elif [[ "$RUNNER_OS" == "macOS" ]]; then
+        elif [ "$RUNNER_OS" == "macOS" ]; then
           wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
           bash Miniconda3-latest-MacOSX-x86_64.sh -b -p $HOME/miniconda
           export PATH="$HOME/miniconda/bin:$PATH"
-        elif [[ "$RUNNER_OS" == "Linux" ]]; then
+        elif [ "$RUNNER_OS" == "Linux" ]; then
           wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
           bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
           export PATH="$HOME/miniconda/bin:$PATH"
@@ -43,7 +43,7 @@ jobs:
 
     - name: Zip Conda environment
       run: |
-        if [[ "$RUNNER_OS" == "Windows" ]]; then
+        if [ "$RUNNER_OS" == "Windows" ]; then
           7z a conda_env.zip $CONDA_PREFIX
         else
           zip -r conda_env.zip $CONDA_PREFIX
