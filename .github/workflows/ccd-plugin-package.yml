@@ -34,7 +34,7 @@ jobs:
           fi
 
       # create a zip file with all the libraries
-      - uses: vimtor/action-zip@v1.1.0
+      - uses: vimtor/action-zip@v1
         with:
           files: ${{ env.SITE_PACKAGES_PATH }}
           dest: extlibs_${{ matrix.os }}_py${{ matrix.python-version }}.zip
