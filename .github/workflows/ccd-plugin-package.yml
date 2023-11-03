@@ -20,24 +20,28 @@ jobs:
 
       - name: Create Conda environment and install libraries
         shell: bash -el {0}
+        working-directory: ${{ github.workspace }}
         run: |
-          conda install -c conda-forge gdal -y
+          conda install --file requirements.txt -y
 
-      - name: Zip the site-packages
+      - name: Define a variable for site-packages location based on OS
         shell: bash -el {0}
-        if : matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
         run: |
-            echo "Conda prefix $CONDA_PREFIX"
-            zip -r extlibs_${{ matrix.os }}_py${{ matrix.python-version }}.zip $CONDA_PREFIX/lib/python${{ matrix.python-version }}/site-packages
+          if [ ${{ matrix.os }} == 'windows-latest' ]; then
+            SITE_PACKAGES_PATH=$CONDA_PREFIX/Lib/site-packages
+          else
+            SITE_PACKAGES_PATH=$CONDA_PREFIX/lib/python${{ matrix.python-version }}/site-packages
+          fi
 
-      - name: Zip the site-packages
-        shell: bash -el {0}
-        if : matrix.os == 'windows-latest'
-        run: |
-            zip -r extlibs_${{ matrix.os }}_py${{ matrix.python-version }}.zip $CONDA_PREFIX/Lib/site-packages
+      # create a zip file with all the libraries
+      - uses: vimtor/action-zip@v1.1.0
+        with:
+          files: ${{ env.SITE_PACKAGES_PATH }}
+          dest: extlibs_${{ matrix.os }}_py${{ matrix.python-version }}.zip
 
+      # upload the zip file as an artifact
       - name: Upload extlibs zip artifact
         uses: actions/upload-artifact@v2
         with:
           name: extlibs_${{ matrix.os }}_py${{ matrix.python-version }}
-          path: ./extlibs_${{ matrix.os }}_py${{ matrix.python-version }}.zip
+          path: ${{ github.workspace }}/extlibs_${{ matrix.os }}_py${{ matrix.python-version }}.zip
