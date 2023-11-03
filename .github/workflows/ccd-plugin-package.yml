@@ -8,8 +8,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest"] #, "macos-latest", "windows-latest"]
-        python-version: ["3.9"]
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+        python-version: ["3.9", "3.10", "3.11"]
     steps:
       - uses: actions/checkout@v3
       - uses: conda-incubator/setup-miniconda@v2
@@ -24,7 +24,7 @@ jobs:
         run: |
           conda install --file requirements.txt -y
 
-      - name: Define a variable for site-packages location based on OS
+      - name: Prepare extlibs
         shell: bash -el {0}
         run: |
           if [ ${{ matrix.os }} == 'windows-latest' ]; then
@@ -33,8 +33,9 @@ jobs:
             SITE_PACKAGES_PATH=$CONDA_PREFIX/lib/python${{ matrix.python-version }}/site-packages
           fi
           mv $SITE_PACKAGES_PATH ./extlibs
+          rm -rf ./extlibs/plotly* ./extlibs/pip* ./extlibs/setuptools* ./extlibs/plotly*
 
-      # create a zip file with all the libraries
+      # create a zip file with the extlibs
       - uses: vimtor/action-zip@v1
         with:
           files: extlibs
