@@ -33,7 +33,7 @@ jobs:
             SITE_PACKAGES_PATH=$CONDA_PREFIX/lib/python${{ matrix.python-version }}/site-packages
           fi
           mv $SITE_PACKAGES_PATH ./extlibs
-          rm -rf ./extlibs/plotly* ./extlibs/pip* ./extlibs/setuptools* ./extlibs/plotly*
+          rm -rf ./extlibs/plotly* ./extlibs/pip* ./extlibs/setuptools* ./extlibs/panel* ./extlibs/bokeh* ./extlibs/babel* ./extlibs/rtree*
 
       # create a zip file with the extlibs
       - uses: vimtor/action-zip@v1
