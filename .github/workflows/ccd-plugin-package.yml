@@ -20,7 +20,6 @@ jobs:
 
       - name: Create Conda environment and install libraries
         shell: bash -el {0}
-        working-directory: ${{ github.workspace }}
         run: |
           conda install --file requirements.txt -y
 
@@ -34,6 +33,7 @@ jobs:
           fi
 
       # create a zip file with all the libraries
+      - uses: actions/checkout@v2
       - uses: vimtor/action-zip@v1
         with:
           files: ${{ env.SITE_PACKAGES_PATH }}
