@@ -38,6 +38,7 @@ class DownloadAndUnzip(QDialog):
 
         self.url = url
         self.output_path = os.path.join(output_path, "Coregistration", "extlibs")
+        os.makedirs(self.output_path, exist_ok=True)
 
         self.progress_bar = QProgressBar(self)
         self.progress_bar.setAlignment(Qt.AlignCenter)
@@ -60,7 +61,6 @@ class DownloadAndUnzip(QDialog):
         main_layout.addLayout(progress_layout)
         main_layout.addLayout(button_layout)
 
-        self.clean_extlibs()
 
         self.show()
 
@@ -108,10 +108,6 @@ class DownloadAndUnzip(QDialog):
             print("Error downloading: ", e)
             return False
 
-    def clean_extlibs(self):
-        shutil.rmtree(self.output_path, ignore_errors=True)
-        os.makedirs(self.output_path)
-
     def extract_zip(self):
         try:
             self.progress_label.setText("Extracting libraries...")
@@ -122,6 +118,23 @@ class DownloadAndUnzip(QDialog):
         except Exception as e:
             print("Error unzipping: ", e)
             return False
+
+
+def clean():
+    # cleanup old version of extra libs
+    old_extra_libs_path_list = ["extlibs_linux", "extlibs_windows", "extlibs_macos"]
+    for old_extra_libs_path in old_extra_libs_path_list:
+        old_extra_libs_path = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), old_extra_libs_path))
+        shutil.rmtree(old_extra_libs_path, ignore_errors=True)
+
+    extra_libs_path = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), "extlibs"))
+    shutil.rmtree(extra_libs_path, ignore_errors=True)
+    if os.path.isdir(extra_libs_path):
+        # show a message to the user to restart QGIS
+        msg = "To complete the installation of the Co-registration Plugin, please restart QGIS."
+        QMessageBox.information(None, 'Co-registration Plugin', msg, QMessageBox.Ok)
+        return False
+    return True
 
 
 def install():

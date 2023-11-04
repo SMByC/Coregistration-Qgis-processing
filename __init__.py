@@ -18,11 +18,8 @@
  *                                                                         *
  ***************************************************************************/
 """
-import ctypes
 import importlib
 import os
-import platform
-import shutil
 import site
 import pkg_resources
 from packaging import version
@@ -32,39 +29,12 @@ from qgis.PyQt.QtWidgets import QMessageBox
 from Coregistration.utils import extralibs
 
 
-def unload_all_dlls(directory):
-    for root, dirs, files in os.walk(directory):
-        for file in files:
-            if file.endswith(".dll"):
-                dll_path = os.path.join(root, file)
-                try:
-                    # Load the DLL
-                    dll = ctypes.windll.LoadLibrary(dll_path)
-                    # Unload the DLL
-                    ctypes.windll.kernel32.FreeLibrary(dll._handle)
-                except Exception as e:
-                    print(f"Error removing {file}: {e}")
-
-
 def check_dependencies():
     try:
         import arosics
         importlib.reload(arosics)
 
-        # cleanup and update the extlibs if using an old version
         if version.parse(arosics.version.__version__) < version.parse("1.9.3"):
-            old_extra_libs_path_list = ["extlibs", "extlibs_linux", "extlibs_windows", "extlibs_macos"]
-            for old_extra_libs_path in old_extra_libs_path_list:
-                old_extra_libs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), old_extra_libs_path))
-                if os.path.isdir(old_extra_libs_path):
-                    if platform.system() == "Windows":
-                        unload_all_dlls(old_extra_libs_path)
-                    shutil.rmtree(old_extra_libs_path, ignore_errors=True)
-
-            # show a message to the user to restart QGIS
-            msg = "The Co-registration Plugin requires restarting QGIS to load the update after installing it."
-            QMessageBox.information(None, 'Co-registration Plugin', msg, QMessageBox.Ok)
-
             return False
 
         return True
@@ -90,10 +60,15 @@ def classFactory(iface):  # pylint: disable=invalid-name
     :param iface: A QGIS interface instance.
     :type iface: QgsInterface
     """
+    from Coregistration.coregistration_plugin import CoregistrationPlugin
     # load extra python dependencies
     pre_init_plugin()
 
     if not check_dependencies():
+        # clean the extra libs
+        if not extralibs.clean():
+            return CoregistrationPlugin()
+
         # install extra python dependencies
         extralibs.install()
         # load extra python dependencies
@@ -105,5 +80,4 @@ def classFactory(iface):  # pylint: disable=invalid-name
                   "https://github.com/SMByC/Coregistration-Qgis-processing#installation"
             QMessageBox.critical(None, 'Coregistration Plugin: Error loading', msg, QMessageBox.Ok)
 
-    from Coregistration.coregistration_plugin import CoregistrationPlugin
     return CoregistrationPlugin()
