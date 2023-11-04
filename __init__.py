@@ -25,6 +25,7 @@ import platform
 import shutil
 import site
 import pkg_resources
+from packaging import version
 
 from qgis.PyQt.QtWidgets import QMessageBox
 
@@ -50,16 +51,19 @@ def check_dependencies():
         import arosics
         importlib.reload(arosics)
 
-        # update the extlibs if using an old version
-        if arosics.version.__version__ != "1.9.3":
-            extra_libs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'extlibs'))
-            # remove the extra libs ignoring the errors
-            if platform.system() == "Windows":
-                unload_all_dlls(extra_libs_path)
-            shutil.rmtree(extra_libs_path, ignore_errors=True)
+        # cleanup and update the extlibs if using an old version
+        if version.parse(arosics.version.__version__) < version.parse("1.9.3"):
+            old_extra_libs_path_list = ["extlibs", "extlibs_linux", "extlibs_windows", "extlibs_macos"]
+            for old_extra_libs_path in old_extra_libs_path_list:
+                old_extra_libs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), old_extra_libs_path))
+                if os.path.isdir(old_extra_libs_path):
+                    if platform.system() == "Windows":
+                        unload_all_dlls(old_extra_libs_path)
+                    shutil.rmtree(old_extra_libs_path, ignore_errors=True)
+
             # show a message to the user to restart QGIS
             msg = "The Co-registration Plugin requires restarting QGIS to load the update after installing it."
-            QMessageBox.information(None, 'Co-registration Plugin: Restart QGIS', msg, QMessageBox.Ok)
+            QMessageBox.information(None, 'Co-registration Plugin', msg, QMessageBox.Ok)
 
             return False
 
