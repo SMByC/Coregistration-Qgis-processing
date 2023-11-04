@@ -229,21 +229,11 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         try:
             from arosics import COREG_LOCAL
         except:
-            if platform.system() != 'Windows':
-                # load/install extra python dependencies
-                from Coregistration.utils.extra_deps import load_install_extra_deps
-                feedback.pushInfo("Installing dependencies...")
-                for msg_type, msg_val in load_install_extra_deps():
-                    print(str(msg_val))
-            try:
-                from arosics import COREG_LOCAL
-            except:
-                msg = "\nError loading Arosics, this plugin requires additional Python packages to work. " \
-                      "For Windows users, download and reinstall the plugin with this zip all-in-one with all " \
-                      "the libs and dependencies. Read the install instructions here:\n\n" \
-                      "https://github.com/SMByC/Coregistration-Qgis-processing#installation\n\n"
-                feedback.reportError(msg, fatalError=True)
-                return {}
+            msg = "\nError loading Arosics, this plugin requires additional Python packages to work. " \
+                  "Read the install instructions here:\n\n" \
+                  "https://github.com/SMByC/Coregistration-Qgis-processing#installation\n\n"
+            feedback.reportError(msg, fatalError=True)
+            return {}
 
         def get_inputfilepath(layer):
             return os.path.realpath(layer.source().split("|layername")[0])
