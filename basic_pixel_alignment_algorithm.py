@@ -5,7 +5,7 @@
                           A QGIS plugin processing
  Image co-registration, projection and pixel alignment based on a target image
                               -------------------
-        copyright            : (C) 2021 by Xavier Corredor Llano, SMByC
+        copyright            : (C) 2023 by Xavier Corredor Llano, SMByC
         email                : xavier.corredor.llano@gmail.com
  ***************************************************************************/
 
@@ -25,8 +25,7 @@ from osgeo import gdal
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import (QgsProcessingAlgorithm, QgsProcessingParameterRasterDestination, QgsProcessingParameterRasterLayer,
-                       QgsProcessingParameterNumber, QgsProcessingParameterDefinition, QgsProcessingParameterEnum,
-                       QgsProcessingParameterVectorLayer, QgsProcessing)
+                       QgsProcessingParameterNumber, QgsProcessingParameterDefinition, QgsProcessingParameterEnum)
 
 
 class CoregistrationAlgorithm(QgsProcessingAlgorithm):
