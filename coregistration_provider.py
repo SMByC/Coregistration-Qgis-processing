@@ -23,6 +23,7 @@ import os
 from qgis.PyQt.QtGui import QIcon
 from qgis.core import QgsProcessingProvider
 from Coregistration.basic_pixel_alignment_algorithm import CoregistrationAlgorithm
+from Coregistration.panning_pixel_adjustment_algorithm import PanningPixelAdjustmentAlgorithm
 from Coregistration.automated_global_coregistration_algorithm import AutomatedGlobalCoregistrationAlgorithm
 from Coregistration.automated_local_coregistration_algorithm import AutomatedLocalCoregistrationAlgorithm
 from . import resources
@@ -51,6 +52,7 @@ class CoregistrationProvider(QgsProcessingProvider):
         Loads all algorithms belonging to this provider.
         """
         self.addAlgorithm(CoregistrationAlgorithm())
+        self.addAlgorithm(PanningPixelAdjustmentAlgorithm())
         self.addAlgorithm(AutomatedGlobalCoregistrationAlgorithm())
         self.addAlgorithm(AutomatedLocalCoregistrationAlgorithm())
 

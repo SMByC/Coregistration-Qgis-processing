@@ -4,7 +4,7 @@ Image to image automatic co-registration processing Qgis plugin. This plugin use
 
 ![](docs/img/coregistration.png)
 
-_This plugin has three algorithms:_
+_This plugin has four algorithms:_
 
 ### (1) Basic pixel alignment
 
@@ -16,17 +16,22 @@ This Qgis processing generates a new raster file base on the target image with a
 
 For a real image to image co-registration use the following two algorithms instead
 
+### (2) Panning pixel adjustment
+
+The Pixel Panning Adjustment algorithm provides a simple way to manually shift pixels in the X (longitude) and Y 
+(latitude) directions in the whole image given by the user. This algorithm is not automatic, the user must select the pixel shift in X and Y.
+
 ## Automated global and local image to image co-registration
 
 Detects and corrects global and local X/Y shifts misregistrations between two input images in the subpixel scale using the content of the pixels in the matching window. Perform automatic subpixel co-registration of image datasets based on an image matching approach working in the frequency domain, combined with a multistage workflow for effective detection of false-positives [1].
         
 It is designed to robustly handle the typical difficulties of multi-sensoral/multi-temporal images. Clouds are automatically handled by the implemented outlier detection algorithms [1].
 
-### (2) Global
+### (3) Global
 
 This global algorithm is useful when the target image requires just one shifts in distance and direction in the whole image.
 
-### (3) Local
+### (4) Local
 
 This local algorithm is useful when the target image requires different pixel shifts in distances and directions. The precision of this is based on mainly in two input parameters: tie point grid resolution and matching window size. This is significantly more comprehensive and slower than global algorithm.
 
