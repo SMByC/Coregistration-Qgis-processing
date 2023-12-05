@@ -22,6 +22,10 @@ from osgeo import gdal
 
 
 def get_raster_driver_by_extension(file_extension):
+    file_extension = file_extension.lower()
+    # fix tiff
+    if file_extension == 'tiff':
+        file_extension = 'tif'
     # Get the list of all GDAL raster drivers
     driver_list = gdal.GetDriverCount()
 
