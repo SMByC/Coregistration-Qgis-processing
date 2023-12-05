@@ -39,6 +39,7 @@ SOURCES = \
 	automated_global_coregistration_algorithm.py \
 	automated_local_coregistration_algorithm.py \
 	basic_pixel_alignment_algorithm.py \
+	panning_pixel_adjustment_algorithm.py \
 	coregistration_plugin.py \
 	coregistration_provider.py 
 
@@ -49,12 +50,13 @@ PY_FILES = \
 	automated_global_coregistration_algorithm.py \
 	automated_local_coregistration_algorithm.py \
 	basic_pixel_alignment_algorithm.py \
+	panning_pixel_adjustment_algorithm.py \
 	coregistration_plugin.py \
 	coregistration_provider.py
 
 UI_FILES = 
 
-EXTRAS = metadata.txt 
+EXTRAS = metadata.txt LICENSE
 
 EXTRA_DIRS_FULL = icons utils extlibs_windows
 EXTRA_DIRS = icons utils
