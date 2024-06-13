@@ -9,21 +9,21 @@ jobs:
       fail-fast: false
       matrix:
         os: [ "ubuntu-latest", "macos-latest", "windows-latest" ]
-        python-version: [ "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.12"]
     steps:
-      - uses: actions/checkout@v3
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: ${{ matrix.python-version }}
-          channels: conda-forge,defaults
-          mamba-version: "*"
-          channel-priority: true
-          activate-environment: conda_env
+          miniconda-version: "latest"
+          channels: conda-forge
+          auto-activate-base: true
+          activate-environment: ""
 
       - name: Create Conda environment and install libraries
         shell: bash -el {0}
         run: |
-          mamba install --file requirements.txt -y
+          conda install --file requirements.txt -y
 
       - name: Prepare extlibs
         shell: bash -el {0}
