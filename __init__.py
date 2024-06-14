@@ -31,10 +31,11 @@ from Coregistration.utils import extralibs
 
 def check_dependencies():
     try:
+        import sklearn
         import arosics
         importlib.reload(arosics)
 
-        if version.parse(arosics.version.__version__) < version.parse("1.9"):
+        if version.parse(arosics.version.__version__) < version.parse("1.10"):
             return False
 
         return True

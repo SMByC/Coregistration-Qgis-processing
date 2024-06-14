@@ -3,8 +3,8 @@ name=Coregistration
 description=Image to image automatic co-registration processing Qgis plugin.
 about=This plugin use Arosics to perform automatic subpixel co-registration of image datasets based on an image matching approach working in the frequency domain.
 
-version=24.6
-qgisMinimumVersion=3.28
+version=24.6.1
+qgisMinimumVersion=3.34
 qgisMaximumVersion=3.99
 
 author=Xavier Corredor Llano, SMByC
