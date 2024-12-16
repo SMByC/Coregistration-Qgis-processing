@@ -187,7 +187,7 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
             output_file = file_in_path
 
         # gdal driver based on the output file
-        gdal_driver = gdal.GetDriverByName(get_raster_driver_name_by_extension(output_file.split(".")[-1]))
+        gdal_driver = gdal.GetDriverByName(get_raster_driver_name_by_extension(output_file))
         gdal_driver.CreateCopy(output_file, input_ds)
         input_ds = None
 

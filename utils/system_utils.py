@@ -18,10 +18,11 @@
  *                                                                         *
  ***************************************************************************/
 """
+import os
 
 
-def get_raster_driver_name_by_extension(file_extension):
-    # Normalize the extension by removing leading dot and converting to lowercase
+def get_raster_driver_name_by_extension(file_path):
+    file_extension = os.path.splitext(file_path)[1]
     ext = file_extension.lower().lstrip('.')
 
     # Dictionary mapping file extensions to GDAL driver names

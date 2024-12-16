@@ -27,6 +27,8 @@ from qgis.core import (QgsProcessingAlgorithm, QgsProcessingParameterRasterDesti
                        QgsProcessingParameterNumber, QgsProcessingParameterDefinition, QgsProcessingParameterEnum,
                        QgsProcessingParameterBoolean)
 
+from Coregistration.utils.system_utils import get_raster_driver_name_by_extension
+
 
 class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
     """
@@ -252,6 +254,7 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         resampling_method = self.resampling_methods[self.parameterAsEnum(parameters, self.RESAMPLING, context)][1]
 
         output_file = self.parameterAsOutputLayer(parameters, self.OUTPUT, context)
+        output_driver_name = get_raster_driver_name_by_extension(output_file)
 
         feedback.pushInfo("Image to image Co-Registration:")
         feedback.pushInfo("\nProcessing file: " + img_tgt)
@@ -264,7 +267,7 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         CRL = COREG_LOCAL(img_ref, img_tgt, path_out=output_file, align_grids=align_grids, match_gsd=match_gsd,
                           grid_res=grid_res, window_size=(window_size, window_size),
                           resamp_alg_deshift=resampling_method, max_shift=max_shift, max_iter=15,
-                          fmt_out="GTiff", out_crea_options=["WRITE_METADATA=NO"],
+                          fmt_out=output_driver_name, out_crea_options=["WRITE_METADATA=NO"],
                           CPUs=1 if platform.system() == "Windows" else None)
         CRL.correct_shifts()
 
