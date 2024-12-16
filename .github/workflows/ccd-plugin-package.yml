@@ -11,8 +11,8 @@ jobs:
         os: [ "ubuntu-latest", "macos-latest", "windows-latest" ]
         python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
-      - uses: actions/checkout
-      - uses: conda-incubator/setup-miniconda
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: ${{ matrix.python-version }}
           miniconda-version: "latest"
@@ -42,14 +42,14 @@ jobs:
           find ./extlibs -iname "__pycache__" -prune -exec rm -Rf {} \;
 
       # create a zip file with the extlibs
-      - uses: vimtor/action-zip
+      - uses: vimtor/action-zip@v1.2
         with:
           files: extlibs
           dest: extlibs_${{ matrix.os }}_py${{ matrix.python-version }}.zip
 
       # upload the zip file as an artifact
       - name: Upload extlibs zip artifact
-        uses: actions/upload-artifact
+        uses: actions/upload-artifact@v4
         with:
           name: extlibs_${{ matrix.os }}_py${{ matrix.python-version }}
           path: ${{ github.workspace }}/extlibs_${{ matrix.os }}_py${{ matrix.python-version }}.zip
@@ -58,5 +58,5 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout
-      - uses: actions/download-artifact
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
