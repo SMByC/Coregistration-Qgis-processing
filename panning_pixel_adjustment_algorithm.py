@@ -26,7 +26,7 @@ from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import (QgsProcessingAlgorithm, QgsProcessingParameterRasterDestination, QgsProcessingParameterRasterLayer,
                        QgsProcessingParameterNumber)
 
-from Coregistration.utils.system_utils import get_raster_driver_by_extension
+from Coregistration.utils.system_utils import get_raster_driver_name_by_extension
 
 
 class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
@@ -187,7 +187,7 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
             output_file = file_in_path
 
         # gdal driver based on the output file
-        gdal_driver = gdal.GetDriverByName(get_raster_driver_by_extension(output_file.split(".")[-1]).lower())
+        gdal_driver = gdal.GetDriverByName(get_raster_driver_name_by_extension(output_file.split(".")[-1]))
         gdal_driver.CreateCopy(output_file, input_ds)
         input_ds = None
 

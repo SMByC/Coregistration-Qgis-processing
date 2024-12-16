@@ -18,25 +18,36 @@
  *                                                                         *
  ***************************************************************************/
 """
-from osgeo import gdal
 
 
-def get_raster_driver_by_extension(file_extension):
-    file_extension = file_extension.lower()
-    # fix tiff
-    if file_extension == 'tiff':
-        file_extension = 'tif'
-    # Get the list of all GDAL raster drivers
-    driver_list = gdal.GetDriverCount()
+def get_raster_driver_name_by_extension(file_extension):
+    # Normalize the extension by removing leading dot and converting to lowercase
+    ext = file_extension.lower().lstrip('.')
 
-    # Loop through the drivers and find the one associated with the given file extension
-    for i in range(driver_list):
-        driver = gdal.GetDriver(i)
-        extensions = driver.GetMetadataItem("DMD_EXTENSION")
+    # Dictionary mapping file extensions to GDAL driver names
+    driver_map = {
+        # Raster Formats
+        'tif': 'GTiff',
+        'tiff': 'GTiff',
+        'geotiff': 'GTiff',
+        'img': 'HFA',
+        'hdr': 'ENVI',
+        'dat': 'ENVI',
+        'jp2': 'JPEG2000',
+        'png': 'PNG',
+        'jpg': 'JPEG',
+        'jpeg': 'JPEG',
+        'bmp': 'BMP',
+        'gif': 'GIF',
+        'asc': 'AAIGrid',
+        'bil': 'EHdr',
+        'nc': 'netCDF',
+        'hdf': 'HDF4',
+        'grd': 'surfer',
+        'ecw': 'ECW',
+        'sid': 'MrSID',
+        'vrt': 'VRT',
+    }
 
-        if extensions:
-            extensions = extensions.split()
-            if file_extension in extensions:
-                return driver.ShortName
-
-    return None  # Return None if no matching driver is found
+    # Return the driver name or None if not found
+    return driver_map.get(ext)
