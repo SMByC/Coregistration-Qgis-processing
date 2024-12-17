@@ -25,7 +25,7 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import (QgsProcessingAlgorithm, QgsProcessingParameterRasterDestination, QgsProcessingParameterRasterLayer,
                        QgsProcessingParameterNumber, QgsProcessingParameterDefinition, QgsProcessingParameterEnum,
-                       QgsProcessingParameterBoolean)
+                       QgsProcessingParameterBoolean, QgsProcessingUtils)
 
 from Coregistration.utils.system_utils import get_raster_driver_name_by_extension
 
@@ -255,6 +255,15 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
 
         output_file = self.parameterAsOutputLayer(parameters, self.OUTPUT, context)
         output_driver_name = get_raster_driver_name_by_extension(output_file)
+
+        # fix save and load ENVI files
+        if output_driver_name == "ENVI":
+            output_file_envi = output_file.replace(".hdr", ".dat")
+            if context.willLoadLayerOnCompletion(output_file):
+                layer_detail = context.LayerDetails(os.path.basename(output_file_envi), context.project(),
+                                                    os.path.basename(output_file_envi), QgsProcessingUtils.LayerHint.Raster)
+                context.setLayersToLoadOnCompletion({output_file_envi: layer_detail})
+            output_file = output_file_envi
 
         feedback.pushInfo("Image to image Co-Registration:")
         feedback.pushInfo("\nProcessing file: " + img_tgt)

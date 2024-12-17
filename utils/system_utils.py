@@ -47,7 +47,6 @@ def get_raster_driver_name_by_extension(file_path):
         'grd': 'surfer',
         'ecw': 'ECW',
         'sid': 'MrSID',
-        'vrt': 'VRT',
     }
 
     # Return the driver name or None if not found

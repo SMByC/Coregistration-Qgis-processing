@@ -24,7 +24,7 @@ from osgeo import gdal
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import (QgsProcessingAlgorithm, QgsProcessingParameterRasterDestination, QgsProcessingParameterRasterLayer,
-                       QgsProcessingParameterNumber)
+                       QgsProcessingParameterNumber, QgsProcessingUtils)
 
 from Coregistration.utils.system_utils import get_raster_driver_name_by_extension
 
@@ -186,8 +186,19 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
         if skip_output:
             output_file = file_in_path
 
+        output_driver_name = get_raster_driver_name_by_extension(output_file)
+
+        # fix save and load ENVI files
+        if output_driver_name == "ENVI":
+            output_file_envi = output_file.replace(".hdr", ".dat")
+            if context.willLoadLayerOnCompletion(output_file):
+                layer_detail = context.LayerDetails(os.path.basename(output_file_envi), context.project(),
+                                                    os.path.basename(output_file_envi), QgsProcessingUtils.LayerHint.Raster)
+                context.setLayersToLoadOnCompletion({output_file_envi: layer_detail})
+            output_file = output_file_envi
+
         # gdal driver based on the output file
-        gdal_driver = gdal.GetDriverByName(get_raster_driver_name_by_extension(output_file))
+        gdal_driver = gdal.GetDriverByName(output_driver_name)
         gdal_driver.CreateCopy(output_file, input_ds)
         input_ds = None
 

@@ -25,7 +25,9 @@ from osgeo import gdal
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import (QgsProcessingAlgorithm, QgsProcessingParameterRasterDestination, QgsProcessingParameterRasterLayer,
-                       QgsProcessingParameterNumber, QgsProcessingParameterDefinition, QgsProcessingParameterEnum)
+                       QgsProcessingParameterNumber, QgsProcessingParameterDefinition, QgsProcessingParameterEnum, QgsProcessingUtils)
+
+from Coregistration.utils.system_utils import get_raster_driver_name_by_extension
 
 
 class CoregistrationAlgorithm(QgsProcessingAlgorithm):
@@ -189,6 +191,16 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         resampling_method = self.resampling_methods[self.parameterAsEnum(parameters, self.RESAMPLING, context)][1]
 
         output_file = self.parameterAsOutputLayer(parameters, self.OUTPUT, context)
+        output_driver_name = get_raster_driver_name_by_extension(output_file)
+
+        # fix save and load ENVI files
+        if output_driver_name == "ENVI":
+            output_file_envi = output_file.replace(".hdr", ".dat")
+            if context.willLoadLayerOnCompletion(output_file):
+                layer_detail = context.LayerDetails(os.path.basename(output_file_envi), context.project(),
+                                                    os.path.basename(output_file_envi), QgsProcessingUtils.LayerHint.Raster)
+                context.setLayersToLoadOnCompletion({output_file_envi: layer_detail})
+            output_file = output_file_envi
 
         feedback.pushInfo("Image to image Co-Registration:")
         feedback.pushInfo("\nProcessing file: " + file_in)
@@ -209,7 +221,7 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
 
         gdal.Warp(output_file, file_in, srcSRS=src_crs, dstSRS=dst_crs, xRes=x_res, yRes=y_res,
                   resampleAlg=resampling_method, srcNodata=dst_nodata, dstNodata=dst_nodata,
-                  outputBounds=(min_x, min_y, max_x, max_y), targetAlignedPixels=False)
+                  outputBounds=(min_x, min_y, max_x, max_y), targetAlignedPixels=False, format=output_driver_name)
 
         feedback.pushInfo("--> done\n")
 
