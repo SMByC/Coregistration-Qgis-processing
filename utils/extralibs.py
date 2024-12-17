@@ -139,7 +139,7 @@ def clean():
 
 def install():
     # define the Qgis plugins directory and url by OS
-    url = "https://github.com/SMByC/Coregistration-Qgis-processing/releases/download/24.6/"
+    url = "https://github.com/SMByC/Coregistration-Qgis-processing/releases/download/24.12/"
     py_version = 'py' + str(platform.python_version_tuple()[0]) + '.' + str(platform.python_version_tuple()[1])
     if platform.system() == "Windows":
         qgis_plugins_dir = os.path.join(os.path.expanduser('~'), 'AppData', 'Roaming', 'QGIS', 'QGIS3', 'profiles', 'default', 'python', 'plugins')
