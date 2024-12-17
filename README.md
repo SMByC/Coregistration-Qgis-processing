@@ -2,12 +2,13 @@
 
 Image to image automatic co-registration processing Qgis plugin. This plugin uses AROSICS to perform automatic subpixel co-registration of image datasets based on an image matching approach working in the frequency domain.
 
-![](docs/img/coregistration.png)
-
 _This plugin has four algorithms:_
 
 ### (1) Basic pixel alignment
 
+<div align="center">
+<img src="docs/img/Basic%20pixel%20alignment.webp" height="270px" style="margin: auto;display: block;">
+</div>
 This Qgis processing generates a new raster file base on the target image with all properties from the reference image. This process don't check the content of the pixel, this process adjusts the target image to the closest pixel alignment based on the reference image. The basic pixel alignment process include:
 
 * Reprojection (only if needed)
@@ -18,6 +19,9 @@ For a real image to image co-registration use the following two algorithms inste
 
 ### (2) Panning pixel adjustment
 
+<div align="center">
+<img src="docs/img/Panning%20pixel%20adjustment.webp" height="250px" style="margin: auto;display: block;">
+</div>
 The Pixel Panning Adjustment algorithm provides a simple way to manually shift pixels in the X (longitude) and Y 
 (latitude) directions in the whole image given by the user. This algorithm is not automatic, the user must select the pixel shift in X and Y.
 
@@ -29,10 +33,16 @@ It is designed to robustly handle the typical difficulties of multi-sensoral/mul
 
 ### (3) Global
 
+<div align="center">
+<img src="docs/img/Automated%20global%20co-registration.webp" height="380px" style="margin: auto;display: block;">
+</div>
 This global algorithm is useful when the target image requires just one shifts in distance and direction in the whole image.
 
 ### (4) Local
 
+<div align="center">
+<img src="docs/img/Automated%20local%20co-registration.webp" height="380px" style="margin: auto;display: block;">
+</div>
 This local algorithm is useful when the target image requires different pixel shifts in distances and directions. The precision of this is based on mainly in two input parameters: tie point grid resolution and matching window size. This is significantly more comprehensive and slower than global algorithm.
 
 *[1] These algorithms use AROSICS software developed by Daniel Scheffler, for more info <a href="https://danschef.git-pages.gfz-potsdam.de/arosics/doc/">url</a> and <a href="https://doi.org/10.3390/rs9070676">paper</a>.
