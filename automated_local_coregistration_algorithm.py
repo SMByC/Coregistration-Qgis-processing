@@ -277,7 +277,7 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
                           grid_res=grid_res, window_size=(window_size, window_size),
                           resamp_alg_deshift=resampling_method, max_shift=max_shift, max_iter=15,
                           fmt_out=output_driver_name, out_crea_options=["WRITE_METADATA=NO"],
-                          CPUs=1 if platform.system() == "Windows" else None)
+                          CPUs=1)
         CRL.correct_shifts()
 
         feedback.pushInfo("DONE\n")
