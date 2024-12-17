@@ -4,6 +4,10 @@ Image to image automatic co-registration processing Qgis plugin. This plugin use
 
 _This plugin has four algorithms:_
 
+<div align="center">
+<img src="docs/img/Algorithms.webp" height="230px" style="margin: auto;display: block;">
+</div>
+
 ### (1) Basic pixel alignment
 
 <div align="center">
