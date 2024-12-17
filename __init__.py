@@ -35,7 +35,7 @@ def check_dependencies():
         import arosics
         importlib.reload(arosics)
 
-        if version.parse(arosics.version.__version__) < version.parse("1.10"):
+        if version.parse(arosics.version.__version__) < version.parse("1.12"):
             return False
 
         return True
