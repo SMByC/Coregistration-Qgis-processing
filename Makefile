@@ -90,8 +90,23 @@ default: compile
 
 compile: $(COMPILED_RESOURCE_FILES)
 
+# Resource compilation:
+#   * QGIS 3.x / Qt5 ships with pyrcc5
+#   * QGIS 4.x / Qt6 does NOT ship a pyrcc6 (it was removed upstream); the
+#     PySide6 equivalent (pyside6-rcc) is typically available.
+# The generated `resources.py` is post-processed to import from
+# `qgis.PyQt` so the same file is usable from both PyQt5 and PyQt6 plugins.
+RCC ?= $(shell command -v pyrcc5 2>/dev/null || command -v pyside6-rcc 2>/dev/null)
+
 %.py : %.qrc $(RESOURCES_SRC)
-	pyrcc5 -o $*.py  $<
+	@if [ -z "$(RCC)" ]; then \
+		echo "Error: neither pyrcc5 nor pyside6-rcc found in PATH." >&2; \
+		exit 1; \
+	fi
+	$(RCC) -o $*.py  $<
+	# Make the generated file work under both PyQt5 and PyQt6
+	sed -i -e 's/^from PyQt5 import QtCore/from qgis.PyQt import QtCore/' \
+		-e 's/^from PySide6 import QtCore/from qgis.PyQt import QtCore/' $*.py
 
 %.qm : %.ts
 	$(LRELEASE) $<

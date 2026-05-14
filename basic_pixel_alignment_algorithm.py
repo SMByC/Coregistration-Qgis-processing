@@ -150,11 +150,11 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterNumber(
                 self.NODATA,
                 self.tr('Nodata value for output bands'),
-                type=QgsProcessingParameterNumber.Double,
+                type=QgsProcessingParameterNumber.Type.Double,
                 defaultValue=None,
                 optional=True
             )
-        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(parameter)
 
         parameter = \
@@ -165,7 +165,7 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
                 defaultValue=0,
                 optional=False
             )
-        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(parameter)
 
         self.addParameter(

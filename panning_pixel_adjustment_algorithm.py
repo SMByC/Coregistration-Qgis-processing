@@ -121,7 +121,7 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterNumber(
                 self.SHIFT_IN_X,
                 self.tr('Shift in X (in pixels units, where + is to the right and - is to the left)'),
-                type=QgsProcessingParameterNumber.Double,
+                type=QgsProcessingParameterNumber.Type.Double,
                 defaultValue=0,
             )
         )
@@ -130,7 +130,7 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterNumber(
                 self.SHIFT_IN_Y,
                 self.tr('Shift in Y (in pixels units, where + is to the top and - is to the bottom)'),
-                type=QgsProcessingParameterNumber.Double,
+                type=QgsProcessingParameterNumber.Type.Double,
                 defaultValue=0,
             )
         )

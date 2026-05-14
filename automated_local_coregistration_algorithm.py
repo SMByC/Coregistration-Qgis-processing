@@ -181,7 +181,7 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterNumber(
                 self.GRID_RES,
                 self.tr('Tie point grid resolution (pixel units of the target image)'),
-                type=QgsProcessingParameterNumber.Integer,
+                type=QgsProcessingParameterNumber.Type.Integer,
                 defaultValue=200,
             )
         )
@@ -190,7 +190,7 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterNumber(
                 self.WINDOW_SIZE,
                 self.tr('Custom matching window size (width and height in pixel units)'),
-                type=QgsProcessingParameterNumber.Integer,
+                type=QgsProcessingParameterNumber.Type.Integer,
                 defaultValue=256,
             )
         )
@@ -199,11 +199,11 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterNumber(
                 self.MAX_SHIFT,
                 self.tr('Maximum shift distance in reference image pixel units'),
-                type=QgsProcessingParameterNumber.Integer,
+                type=QgsProcessingParameterNumber.Type.Integer,
                 defaultValue=5,
                 optional=False
             )
-        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(parameter)
 
         parameter = \
@@ -214,7 +214,7 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
                 defaultValue=2,
                 optional=False
             )
-        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(parameter)
 
         self.addParameter(

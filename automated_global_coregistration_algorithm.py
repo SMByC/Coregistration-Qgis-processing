@@ -188,7 +188,7 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterNumber(
                 self.MATCHING_WINDOW_SIZE,
                 self.tr('Custom matching window size in pixel units'),
-                type=QgsProcessingParameterNumber.Integer,
+                type=QgsProcessingParameterNumber.Type.Integer,
                 defaultValue=256,
                 optional=False
             )
@@ -198,11 +198,11 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterNumber(
                 self.MAX_SHIFT,
                 self.tr('Maximum shift distance in reference image pixel units'),
-                type=QgsProcessingParameterNumber.Integer,
+                type=QgsProcessingParameterNumber.Type.Integer,
                 defaultValue=5,
                 optional=False
             )
-        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(parameter)
 
         parameter = \
@@ -213,7 +213,7 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
                 defaultValue=2,
                 optional=False
             )
-        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(parameter)
 
         self.addParameter(

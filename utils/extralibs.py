@@ -41,10 +41,10 @@ class DownloadAndUnzip(QDialog):
         os.makedirs(self.output_path, exist_ok=True)
 
         self.progress_bar = QProgressBar(self)
-        self.progress_bar.setAlignment(Qt.AlignCenter)
+        self.progress_bar.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.progress_label = QLabel("Downloading additional libraries...", self)
-        self.progress_label.setAlignment(Qt.AlignCenter)
+        self.progress_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         progress_layout = QVBoxLayout()
         progress_layout.addWidget(self.progress_label)
@@ -73,7 +73,7 @@ class DownloadAndUnzip(QDialog):
             msg = "Error downloading and extracting additional Python packages required for Co-registration Plugin. " \
                   "Read the install instructions here:\n\n" \
                   "https://github.com/SMByC/Coregistration-Qgis-processing#installation"
-            QMessageBox.critical(None, 'Co-registration Plugin: Error installing libs', msg, QMessageBox.Ok)
+            QMessageBox.critical(None, 'Co-registration Plugin: Error installing libs', msg, QMessageBox.StandardButton.Ok)
 
         self.close_dialog()
 
@@ -132,7 +132,7 @@ def clean():
     if os.path.isdir(extra_libs_path):
         # show a message to the user to restart QGIS
         msg = "To complete the installation of the Co-registration Plugin, please restart QGIS."
-        QMessageBox.information(None, 'Co-registration Plugin', msg, QMessageBox.Ok)
+        QMessageBox.information(None, 'Co-registration Plugin', msg, QMessageBox.StandardButton.Ok)
         return False
     return True
 

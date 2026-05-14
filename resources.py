@@ -2,11 +2,13 @@
 
 # Resource object code
 #
-# Created by: The Resource Compiler for PyQt5 (Qt v5.15.2)
+# Originally created by: The Resource Compiler for PyQt5 (Qt v5.15.2)
+# Imports were updated to use the qgis.PyQt abstraction so that the same
+# file works under both PyQt5 (QGIS 3.x) and PyQt6 (QGIS 4.x).
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt5 import QtCore
+from qgis.PyQt import QtCore
 
 qt_resource_data = b"\
 \x00\x00\x0a\x05\

@@ -55,6 +55,15 @@ This local algorithm is useful when the target image requires different pixel sh
 
 *[1] These algorithms use AROSICS software developed by Daniel Scheffler, for more info <a href="https://danschef.git-pages.gfz-potsdam.de/arosics/doc/">url</a> and <a href="https://doi.org/10.3390/rs9070676">paper</a>.
 
+## Compatibility
+
+This plugin is compatible with:
+
+* **QGIS 3.34+** built against Qt5 / PyQt5
+* **QGIS 4.x** built against Qt6 / PyQt6
+
+It uses the `qgis.PyQt` abstraction layer and scoped-enum syntax that is supported by both PyQt5 (>= 5.12) and PyQt6, so a single code base works on both QGIS major versions.
+
 ## Installation
 
 The plugin can be installed using the QGIS Plugin Manager, go into Qgis to `Plugins` menu and `Manage and install plugins`, in `All` section search for `Coregistration`.
