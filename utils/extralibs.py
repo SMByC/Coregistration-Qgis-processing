@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 /***************************************************************************
  Coregistration
@@ -18,6 +17,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 import os
 import platform
 import shutil
@@ -26,7 +26,16 @@ import urllib.request
 import zipfile
 
 from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtWidgets import QApplication, QDialog, QProgressBar, QLabel, QVBoxLayout, QHBoxLayout, QPushButton, QMessageBox
+from qgis.PyQt.QtWidgets import (
+    QApplication,
+    QDialog,
+    QHBoxLayout,
+    QLabel,
+    QMessageBox,
+    QProgressBar,
+    QPushButton,
+    QVBoxLayout,
+)
 
 
 class DownloadAndUnzip(QDialog):
@@ -61,7 +70,6 @@ class DownloadAndUnzip(QDialog):
         main_layout.addLayout(progress_layout)
         main_layout.addLayout(button_layout)
 
-
         self.show()
 
         self.zip_file_handle, self.zip_file = tempfile.mkstemp(suffix=".zip")
@@ -70,10 +78,14 @@ class DownloadAndUnzip(QDialog):
             self.progress_label.setText("Done!")
             self.progress_bar.setValue(100)
         else:
-            msg = "Error downloading and extracting additional Python packages required for Co-registration Plugin. " \
-                  "Read the install instructions here:\n\n" \
-                  "https://github.com/SMByC/Coregistration-Qgis-processing#installation"
-            QMessageBox.critical(None, 'Co-registration Plugin: Error installing libs', msg, QMessageBox.StandardButton.Ok)
+            msg = (
+                "Error downloading and extracting additional Python packages required for Co-registration Plugin. "
+                "Read the install instructions here:\n\n"
+                "https://github.com/SMByC/Coregistration-Qgis-processing#installation"
+            )
+            QMessageBox.critical(
+                None, "Co-registration Plugin: Error installing libs", msg, QMessageBox.StandardButton.Ok
+            )
 
         self.close_dialog()
 
@@ -83,15 +95,15 @@ class DownloadAndUnzip(QDialog):
             os.remove(self.zip_file)
             self.deleteLater()
             self.accept()
-        except:
+        except Exception:
             pass
 
     def download_file(self):
         try:
             response = urllib.request.urlopen(self.url)
-            total_length = int(response.getheader('Content-Length'))
+            total_length = int(response.getheader("Content-Length"))
 
-            with open(self.zip_file, 'wb') as f:
+            with open(self.zip_file, "wb") as f:
                 downloaded_bytes = 0
                 while True:
                     buffer = response.read(1024)
@@ -112,7 +124,7 @@ class DownloadAndUnzip(QDialog):
         try:
             self.progress_label.setText("Extracting libraries...")
             QApplication.processEvents()
-            with zipfile.ZipFile(self.zip_file, 'r') as zip_ref:
+            with zipfile.ZipFile(self.zip_file, "r") as zip_ref:
                 zip_ref.extractall(self.output_path)
             return True
         except Exception as e:
@@ -123,8 +135,9 @@ class DownloadAndUnzip(QDialog):
 def clean():
     # cleanup old version of extra libs
     old_extra_libs_path_list = ["extlibs_linux", "extlibs_windows", "extlibs_macos"]
+    plugin_dir = os.path.dirname(os.path.dirname(__file__))
     for old_extra_libs_path in old_extra_libs_path_list:
-        old_extra_libs_path = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), old_extra_libs_path))
+        old_extra_libs_path = os.path.abspath(os.path.join(plugin_dir, old_extra_libs_path))
         shutil.rmtree(old_extra_libs_path, ignore_errors=True)
 
     extra_libs_path = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), "extlibs"))
@@ -132,7 +145,7 @@ def clean():
     if os.path.isdir(extra_libs_path):
         # show a message to the user to restart QGIS
         msg = "To complete the installation of the Co-registration Plugin, please restart QGIS."
-        QMessageBox.information(None, 'Co-registration Plugin', msg, QMessageBox.StandardButton.Ok)
+        QMessageBox.information(None, "Co-registration Plugin", msg, QMessageBox.StandardButton.Ok)
         return False
     return True
 
@@ -140,16 +153,24 @@ def clean():
 def install():
     # define the Qgis plugins directory and url by OS
     url = "https://github.com/SMByC/Coregistration-Qgis-processing/releases/download/24.12/"
-    py_version = 'py' + str(platform.python_version_tuple()[0]) + '.' + str(platform.python_version_tuple()[1])
+    major, minor = platform.python_version_tuple()[:2]
+    py_version = f"py{major}.{minor}"
+    home = os.path.expanduser("~")
     if platform.system() == "Windows":
-        qgis_plugins_dir = os.path.join(os.path.expanduser('~'), 'AppData', 'Roaming', 'QGIS', 'QGIS3', 'profiles', 'default', 'python', 'plugins')
-        url += "extlibs_windows_{}.zip".format(py_version)
+        qgis_plugins_dir = os.path.join(
+            home, "AppData", "Roaming", "QGIS", "QGIS3", "profiles", "default", "python", "plugins"
+        )
+        url += f"extlibs_windows_{py_version}.zip"
     elif platform.system() == "Linux":
-        qgis_plugins_dir = os.path.join(os.path.expanduser('~'), '.local', 'share', 'QGIS', 'QGIS3', 'profiles', 'default', 'python', 'plugins')
-        url += "extlibs_linux_{}.zip".format(py_version)
+        qgis_plugins_dir = os.path.join(
+            home, ".local", "share", "QGIS", "QGIS3", "profiles", "default", "python", "plugins"
+        )
+        url += f"extlibs_linux_{py_version}.zip"
     elif platform.system() == "Darwin":
-        qgis_plugins_dir = os.path.join(os.path.expanduser('~'), 'Library', 'Application Support', 'QGIS', 'QGIS3', 'profiles', 'default', 'python', 'plugins')
-        url += "extlibs_macos_{}.zip".format(py_version)
+        qgis_plugins_dir = os.path.join(
+            home, "Library", "Application Support", "QGIS", "QGIS3", "profiles", "default", "python", "plugins"
+        )
+        url += f"extlibs_macos_{py_version}.zip"
 
     # install the extra libraries
     DownloadAndUnzip(url, qgis_plugins_dir)

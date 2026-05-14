@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 /***************************************************************************
  Coregistration
@@ -18,14 +17,22 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 import os
 import tempfile
-from osgeo import gdal
 
-from qgis.PyQt.QtGui import QIcon
+from osgeo import gdal
+from qgis.core import (
+    QgsProcessingAlgorithm,
+    QgsProcessingParameterDefinition,
+    QgsProcessingParameterEnum,
+    QgsProcessingParameterNumber,
+    QgsProcessingParameterRasterDestination,
+    QgsProcessingParameterRasterLayer,
+    QgsProcessingUtils,
+)
 from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import (QgsProcessingAlgorithm, QgsProcessingParameterRasterDestination, QgsProcessingParameterRasterLayer,
-                       QgsProcessingParameterNumber, QgsProcessingParameterDefinition, QgsProcessingParameterEnum, QgsProcessingUtils)
+from qgis.PyQt.QtGui import QIcon
 
 from Coregistration.utils.system_utils import get_raster_driver_name_by_extension
 
@@ -40,31 +47,32 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
     # used when calling the algorithm from another algorithm, or when
     # calling from the QGIS console.
 
-    IMG_REF = 'IMG_REF'
-    INPUT = 'INPUT'
-    NODATA = 'NODATA'
-    RESAMPLING = 'RESAMPLING'
-    OUTPUT = 'OUTPUT'
+    IMG_REF = "IMG_REF"
+    INPUT = "INPUT"
+    NODATA = "NODATA"
+    RESAMPLING = "RESAMPLING"
+    OUTPUT = "OUTPUT"
 
     resampling_methods = (
-        ('Nearest Neighbour', gdal.GRA_NearestNeighbour),
-        ('Bilinear', gdal.GRA_Bilinear),
-        ('Cubic', gdal.GRA_Cubic),
-        ('Cubic Spline', gdal.GRA_CubicSpline),
-        ('Lanczos Windowed Sinc', gdal.GRA_Lanczos),
-        ('Average', gdal.GRA_Average),
-        ('Mode', gdal.GRA_Mode),
-        ('Maximum', gdal.GRA_Max),
-        ('Minimum', gdal.GRA_Min),
-        ('Median', gdal.GRA_Med),
-        ('First Quartile', gdal.GRA_Q1),
-        ('Third Quartile', gdal.GRA_Q3))
+        ("Nearest Neighbour", gdal.GRA_NearestNeighbour),
+        ("Bilinear", gdal.GRA_Bilinear),
+        ("Cubic", gdal.GRA_Cubic),
+        ("Cubic Spline", gdal.GRA_CubicSpline),
+        ("Lanczos Windowed Sinc", gdal.GRA_Lanczos),
+        ("Average", gdal.GRA_Average),
+        ("Mode", gdal.GRA_Mode),
+        ("Maximum", gdal.GRA_Max),
+        ("Minimum", gdal.GRA_Min),
+        ("Median", gdal.GRA_Med),
+        ("First Quartile", gdal.GRA_Q1),
+        ("Third Quartile", gdal.GRA_Q3),
+    )
 
     def __init__(self):
         super().__init__()
 
-    def tr(self, string, context=''):
-        if context == '':
+    def tr(self, string, context=""):
+        if context == "":
             context = self.__class__.__name__
         return QCoreApplication.translate(context, string)
 
@@ -74,16 +82,18 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         should provide a basic description about what the algorithm does and the
         parameters and outputs associated with it..
         """
-        html_help = '''
-        <p>This Qgis processing generates a new raster file base on the target image with all \
-        properties from the reference image. This process don't check the content of the pixel, this process adjusts \
-        the target image to the closest pixel alignment based on the reference image. The basic pixel alignment process include:</p>
-        <ul>
-        <li>- Reprojection (only if needed)</li>
-        <li>- Resampling (only if pixel sizes are different)</li>
-        <li>- Extent/bounds adjustment</li>
-        </ul>
-        <p>For a real image to image co-registration use the other two algorithms instead</p>'''
+        html_help = (
+            "<p>This Qgis processing generates a new raster file base on the target image with all "
+            "properties from the reference image. This process don't check the content of the pixel, "
+            "this process adjusts the target image to the closest pixel alignment based on the "
+            "reference image. The basic pixel alignment process include:</p>"
+            "<ul>"
+            "<li>- Reprojection (only if needed)</li>"
+            "<li>- Resampling (only if pixel sizes are different)</li>"
+            "<li>- Extent/bounds adjustment</li>"
+            "</ul>"
+            "<p>For a real image to image co-registration use the other two algorithms instead</p>"
+        )
         return html_help
 
     def createInstance(self):
@@ -97,7 +107,7 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         lowercase alphanumeric characters only and no spaces or other
         formatting characters.
         """
-        return 'Basic pixel alignment'
+        return "Basic pixel alignment"
 
     def displayName(self):
         """
@@ -134,51 +144,46 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
 
         self.addParameter(
             QgsProcessingParameterRasterLayer(
-                self.IMG_REF,
-                self.tr('The REFERENCE image to use as based to co-register the target image')
+                self.IMG_REF, self.tr("The REFERENCE image to use as based to co-register the target image")
             )
         )
 
         self.addParameter(
             QgsProcessingParameterRasterLayer(
                 self.INPUT,
-                self.tr('The TARGET image for co-register'),
+                self.tr("The TARGET image for co-register"),
             )
         )
 
-        parameter = \
-            QgsProcessingParameterNumber(
-                self.NODATA,
-                self.tr('Nodata value for output bands'),
-                type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=None,
-                optional=True
-            )
+        parameter = QgsProcessingParameterNumber(
+            self.NODATA,
+            self.tr("Nodata value for output bands"),
+            type=QgsProcessingParameterNumber.Type.Double,
+            defaultValue=None,
+            optional=True,
+        )
         parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(parameter)
 
-        parameter = \
-            QgsProcessingParameterEnum(
-                self.RESAMPLING,
-                self.tr('Resampling method to use'),
-                options=[i[0] for i in self.resampling_methods],
-                defaultValue=0,
-                optional=False
-            )
+        parameter = QgsProcessingParameterEnum(
+            self.RESAMPLING,
+            self.tr("Resampling method to use"),
+            options=[i[0] for i in self.resampling_methods],
+            defaultValue=0,
+            optional=False,
+        )
         parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(parameter)
 
         self.addParameter(
-            QgsProcessingParameterRasterDestination(
-                self.OUTPUT,
-                self.tr('Output raster file co-registered')
-            )
+            QgsProcessingParameterRasterDestination(self.OUTPUT, self.tr("Output raster file co-registered"))
         )
 
     def processAlgorithm(self, parameters, context, feedback):
         """
         Here is where the processing itself takes place.
         """
+
         def get_inputfilepath(layer):
             return os.path.realpath(layer.source().split("|layername")[0])
 
@@ -197,8 +202,12 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         if output_driver_name == "ENVI":
             output_file_envi = output_file.replace(".hdr", ".dat")
             if context.willLoadLayerOnCompletion(output_file):
-                layer_detail = context.LayerDetails(os.path.basename(output_file_envi), context.project(),
-                                                    os.path.basename(output_file_envi), QgsProcessingUtils.LayerHint.Raster)
+                layer_detail = context.LayerDetails(
+                    os.path.basename(output_file_envi),
+                    context.project(),
+                    os.path.basename(output_file_envi),
+                    QgsProcessingUtils.LayerHint.Raster,
+                )
                 context.setLayersToLoadOnCompletion({output_file_envi: layer_detail})
             output_file = output_file_envi
 
@@ -207,7 +216,7 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
 
         # extract some info from IMG_REF
         gdal_img_ref = gdal.Open(img_ref, gdal.GA_ReadOnly)
-        min_x, x_res, x_skew, max_y, y_skew, y_res = gdal_img_ref.GetGeoTransform()
+        min_x, x_res, _x_skew, max_y, _y_skew, y_res = gdal_img_ref.GetGeoTransform()
         max_x = min_x + (gdal_img_ref.RasterXSize * x_res)
         min_y = max_y + (gdal_img_ref.RasterYSize * y_res)
         x_res = abs(float(x_res))
@@ -219,9 +228,20 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         gdal_input = gdal.Open(file_in, gdal.GA_ReadOnly)
         src_crs = gdal_input.GetProjection()
 
-        gdal.Warp(output_file, file_in, srcSRS=src_crs, dstSRS=dst_crs, xRes=x_res, yRes=y_res,
-                  resampleAlg=resampling_method, srcNodata=dst_nodata, dstNodata=dst_nodata,
-                  outputBounds=(min_x, min_y, max_x, max_y), targetAlignedPixels=False, format=output_driver_name)
+        gdal.Warp(
+            output_file,
+            file_in,
+            srcSRS=src_crs,
+            dstSRS=dst_crs,
+            xRes=x_res,
+            yRes=y_res,
+            resampleAlg=resampling_method,
+            srcNodata=dst_nodata,
+            dstNodata=dst_nodata,
+            outputBounds=(min_x, min_y, max_x, max_y),
+            targetAlignedPixels=False,
+            format=output_driver_name,
+        )
 
         feedback.pushInfo("--> done\n")
 
@@ -253,18 +273,18 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
             dst_crs = target.crs
             x_res, y_res = target.res
             vrt_options = {
-                'crs': target.crs,
-                'transform': target.transform,
-                'height': target.height,
-                'width': target.width,
-                'nodata': target.nodata
+                "crs": target.crs,
+                "transform": target.transform,
+                "height": target.height,
+                "width": target.width,
+                "nodata": target.nodata,
             }
         with rasterio.open(file_in) as src:
             src_crs = src.crs
 
         # ----- reprojection
         if src_crs != dst_crs:
-            feedback.pushInfo("--> reprojection is required, to CRS: {}".format(dst_crs))
+            feedback.pushInfo(f"--> reprojection is required, to CRS: {dst_crs}")
             # reproject
             reprj_file_tmp = tempfile.NamedTemporaryFile(suffix=".tif", delete=True)
             reprj_file = reprj_file_tmp.name
@@ -277,11 +297,10 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         # ----- set extent and align pixels based on PU
         feedback.pushInfo("--> set extent and align pixels")
         if target.nodata is not None:
-            feedback.pushInfo("--> nodata as: {}".format(target.nodata))
+            feedback.pushInfo(f"--> nodata as: {target.nodata}")
 
-        with rasterio.open(reprj_file) as src:
-            with WarpedVRT(src, **vrt_options) as vrt:
-                rio_shutil.copy(vrt, output_file, driver='GTiff')
+        with rasterio.open(reprj_file) as src, WarpedVRT(src, **vrt_options) as vrt:
+            rio_shutil.copy(vrt, output_file, driver="GTiff")
 
         feedback.pushInfo("--> done\n")
 

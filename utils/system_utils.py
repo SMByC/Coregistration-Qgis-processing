@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 /***************************************************************************
  Coregistration
@@ -18,35 +17,36 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 import os
 
 
 def get_raster_driver_name_by_extension(file_path):
     file_extension = os.path.splitext(file_path)[1]
-    ext = file_extension.lower().lstrip('.')
+    ext = file_extension.lower().lstrip(".")
 
     # Dictionary mapping file extensions to GDAL driver names
     driver_map = {
         # Raster Formats
-        'tif': 'GTiff',
-        'tiff': 'GTiff',
-        'geotiff': 'GTiff',
-        'img': 'HFA',
-        'hdr': 'ENVI',
-        'dat': 'ENVI',
-        'jp2': 'JPEG2000',
-        'png': 'PNG',
-        'jpg': 'JPEG',
-        'jpeg': 'JPEG',
-        'bmp': 'BMP',
-        'gif': 'GIF',
-        'asc': 'AAIGrid',
-        'bil': 'EHdr',
-        'nc': 'netCDF',
-        'hdf': 'HDF4',
-        'grd': 'surfer',
-        'ecw': 'ECW',
-        'sid': 'MrSID',
+        "tif": "GTiff",
+        "tiff": "GTiff",
+        "geotiff": "GTiff",
+        "img": "HFA",
+        "hdr": "ENVI",
+        "dat": "ENVI",
+        "jp2": "JPEG2000",
+        "png": "PNG",
+        "jpg": "JPEG",
+        "jpeg": "JPEG",
+        "bmp": "BMP",
+        "gif": "GIF",
+        "asc": "AAIGrid",
+        "bil": "EHdr",
+        "nc": "netCDF",
+        "hdf": "HDF4",
+        "grd": "surfer",
+        "ecw": "ECW",
+        "sid": "MrSID",
     }
 
     # Return the driver name or None if not found

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 /***************************************************************************
  Coregistration
@@ -18,22 +17,24 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 import os
 
-from qgis.PyQt.QtGui import QIcon
 from qgis.core import QgsProcessingProvider
-from Coregistration.basic_pixel_alignment_algorithm import CoregistrationAlgorithm
-from Coregistration.panning_pixel_adjustment_algorithm import PanningPixelAdjustmentAlgorithm
+from qgis.PyQt.QtGui import QIcon
+
 from Coregistration.automated_global_coregistration_algorithm import AutomatedGlobalCoregistrationAlgorithm
 from Coregistration.automated_local_coregistration_algorithm import AutomatedLocalCoregistrationAlgorithm
-from . import resources
+from Coregistration.basic_pixel_alignment_algorithm import CoregistrationAlgorithm
+from Coregistration.panning_pixel_adjustment_algorithm import PanningPixelAdjustmentAlgorithm
+
+from . import resources  # noqa: F401 - side-effect: registers Qt icon resources
 
 # plugin path
 plugin_folder = os.path.dirname(os.path.dirname(__file__))
 
 
 class CoregistrationProvider(QgsProcessingProvider):
-
     def __init__(self):
         """
         Default constructor.
@@ -62,7 +63,7 @@ class CoregistrationProvider(QgsProcessingProvider):
         string should be a unique, short, character only string, eg "qgis" or
         "gdal". This string should not be localised.
         """
-        return 'coregistration'
+        return "coregistration"
 
     def name(self):
         """
@@ -71,7 +72,7 @@ class CoregistrationProvider(QgsProcessingProvider):
 
         This string should be short (e.g. "Lastools") and localised.
         """
-        return self.tr('Co-Registration')
+        return self.tr("Co-Registration")
 
     def icon(self):
         """

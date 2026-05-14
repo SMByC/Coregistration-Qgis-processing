@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 /***************************************************************************
  Coregistration
@@ -18,13 +17,19 @@
  *                                                                         *
  ***************************************************************************/
 """
-import os
-from osgeo import gdal
 
-from qgis.PyQt.QtGui import QIcon
+import os
+
+from osgeo import gdal
+from qgis.core import (
+    QgsProcessingAlgorithm,
+    QgsProcessingParameterNumber,
+    QgsProcessingParameterRasterDestination,
+    QgsProcessingParameterRasterLayer,
+    QgsProcessingUtils,
+)
 from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import (QgsProcessingAlgorithm, QgsProcessingParameterRasterDestination, QgsProcessingParameterRasterLayer,
-                       QgsProcessingParameterNumber, QgsProcessingUtils)
+from qgis.PyQt.QtGui import QIcon
 
 from Coregistration.utils.system_utils import get_raster_driver_name_by_extension
 
@@ -39,16 +44,16 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
     # used when calling the algorithm from another algorithm, or when
     # calling from the QGIS console.
 
-    INPUT = 'INPUT'
-    SHIFT_IN_X = 'SHIFT_IN_X'
-    SHIFT_IN_Y = 'SHIFT_IN_Y'
-    OUTPUT = 'OUTPUT'
+    INPUT = "INPUT"
+    SHIFT_IN_X = "SHIFT_IN_X"
+    SHIFT_IN_Y = "SHIFT_IN_Y"
+    OUTPUT = "OUTPUT"
 
     def __init__(self):
         super().__init__()
 
-    def tr(self, string, context=''):
-        if context == '':
+    def tr(self, string, context=""):
+        if context == "":
             context = self.__class__.__name__
         return QCoreApplication.translate(context, string)
 
@@ -58,10 +63,11 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
         should provide a basic description about what the algorithm does and the
         parameters and outputs associated with it..
         """
-        html_help = '''
-        <p>The Pixel Panning Adjustment algorithm provides a simple way to manually shift pixels in the X (longitude) and Y \
-        (latitude) directions in the whole image given by the user.</p>
-        <p>The shift values is in pixel size of the image, but it could be a fractional value.</p>'''
+        html_help = (
+            "<p>The Pixel Panning Adjustment algorithm provides a simple way to manually shift "
+            "pixels in the X (longitude) and Y (latitude) directions in the whole image given by the user.</p>"
+            "<p>The shift values is in pixel size of the image, but it could be a fractional value.</p>"
+        )
         return html_help
 
     def createInstance(self):
@@ -75,7 +81,7 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
         lowercase alphanumeric characters only and no spaces or other
         formatting characters.
         """
-        return 'Panning pixel adjustment'
+        return "Panning pixel adjustment"
 
     def displayName(self):
         """
@@ -113,14 +119,14 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterRasterLayer(
                 self.INPUT,
-                self.tr('The TARGET image'),
+                self.tr("The TARGET image"),
             )
         )
 
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.SHIFT_IN_X,
-                self.tr('Shift in X (in pixels units, where + is to the right and - is to the left)'),
+                self.tr("Shift in X (in pixels units, where + is to the right and - is to the left)"),
                 type=QgsProcessingParameterNumber.Type.Double,
                 defaultValue=0,
             )
@@ -129,7 +135,7 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.SHIFT_IN_Y,
-                self.tr('Shift in Y (in pixels units, where + is to the top and - is to the bottom)'),
+                self.tr("Shift in Y (in pixels units, where + is to the top and - is to the bottom)"),
                 type=QgsProcessingParameterNumber.Type.Double,
                 defaultValue=0,
             )
@@ -138,7 +144,7 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterRasterDestination(
                 self.OUTPUT,
-                self.tr('Output raster file (skip the output will overwrite and update the input file!)'),
+                self.tr("Output raster file (skip the output will overwrite and update the input file!)"),
                 optional=True,
                 defaultValue=None,
                 createByDefault=False,
@@ -149,6 +155,7 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
         """
         Here is where the processing itself takes place.
         """
+
         def get_inputfilepath(layer):
             return os.path.realpath(layer.source().split("|layername")[0])
 
@@ -164,8 +171,8 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
         feedback.pushInfo("\nProcessing file: " + file_in_path)
 
         # remove .aux.xml file
-        if os.path.isfile(file_in_path + '.aux.xml'):
-            os.remove(file_in_path + '.aux.xml')
+        if os.path.isfile(file_in_path + ".aux.xml"):
+            os.remove(file_in_path + ".aux.xml")
 
         input_ds = gdal.Open(file_in_path, gdal.GA_ReadOnly)
         gt = input_ds.GetGeoTransform()
@@ -173,11 +180,10 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
         pixel_size_x = abs(gt[1])
         pixel_size_y = abs(gt[5])
 
-
         # Convert tuple to list, so we can modify it
         gtl = list(gt)
-        gtl[0] = gtl[0] + pixel_size_x*shift_in_x  # Move horizontal
-        gtl[3] = gtl[3] + pixel_size_y*shift_in_y  # Move vertical
+        gtl[0] = gtl[0] + pixel_size_x * shift_in_x  # Move horizontal
+        gtl[3] = gtl[3] + pixel_size_y * shift_in_y  # Move vertical
         # Save the geotransform to the raster
         input_ds.SetGeoTransform(tuple(gtl))
         # save the raster to a new file
@@ -192,8 +198,12 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
         if output_driver_name == "ENVI":
             output_file_envi = output_file.replace(".hdr", ".dat")
             if context.willLoadLayerOnCompletion(output_file):
-                layer_detail = context.LayerDetails(os.path.basename(output_file_envi), context.project(),
-                                                    os.path.basename(output_file_envi), QgsProcessingUtils.LayerHint.Raster)
+                layer_detail = context.LayerDetails(
+                    os.path.basename(output_file_envi),
+                    context.project(),
+                    os.path.basename(output_file_envi),
+                    QgsProcessingUtils.LayerHint.Raster,
+                )
                 context.setLayersToLoadOnCompletion({output_file_envi: layer_detail})
             output_file = output_file_envi
 
@@ -203,8 +213,8 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
         input_ds = None
 
         # remove .aux.xml output file
-        if os.path.isfile(output_file + '.aux.xml'):
-            os.remove(output_file + '.aux.xml')
+        if os.path.isfile(output_file + ".aux.xml"):
+            os.remove(output_file + ".aux.xml")
 
         # repainting the layer in the canvas
         if skip_output:

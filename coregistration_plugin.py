@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 /***************************************************************************
  Coregistration
@@ -19,11 +18,12 @@
  ***************************************************************************/
 """
 
+import inspect
 import os
 import sys
-import inspect
 
 from qgis.core import QgsApplication
+
 from Coregistration.coregistration_provider import CoregistrationProvider
 
 cmd_folder = os.path.split(inspect.getfile(inspect.currentframe()))[0]
@@ -33,7 +33,6 @@ if cmd_folder not in sys.path:
 
 
 class CoregistrationPlugin:
-
     def __init__(self):
         self.provider = CoregistrationProvider()
 

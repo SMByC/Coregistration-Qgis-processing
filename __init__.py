@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 /***************************************************************************
  Coregistration
@@ -18,6 +17,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 import importlib
 import os
 import site
@@ -29,14 +29,16 @@ from Coregistration.utils import extralibs
 
 def check_dependencies():
     try:
-        import sklearn  # noqa: F401
         import arosics
+        import sklearn  # noqa: F401
+
         importlib.reload(arosics)
 
         # Use packaging.version when available, otherwise fall back to a
         # tuple comparison so this works on minimal Python environments.
         try:
             from packaging import version as _pkg_version
+
             if _pkg_version.parse(arosics.version.__version__) < _pkg_version.parse("1.12"):
                 return False
         except ImportError:
@@ -55,7 +57,7 @@ def check_dependencies():
 
 def pre_init_plugin():
 
-    extra_libs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'extlibs'))
+    extra_libs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "extlibs"))
 
     if os.path.isdir(extra_libs_path):
         # add to python path so subsequent imports (and importlib.metadata
@@ -71,6 +73,7 @@ def classFactory(iface):  # pylint: disable=invalid-name
     :type iface: QgsInterface
     """
     from Coregistration.coregistration_plugin import CoregistrationPlugin
+
     # load extra python dependencies
     pre_init_plugin()
 
@@ -85,9 +88,11 @@ def classFactory(iface):  # pylint: disable=invalid-name
         pre_init_plugin()
 
         if not check_dependencies():
-            msg = "Error loading libraries for Co-registration Plugin. " \
-                  "Read the install instructions here:\n\n" \
-                  "https://github.com/SMByC/Coregistration-Qgis-processing#installation"
-            QMessageBox.critical(None, 'Coregistration Plugin: Error loading', msg, QMessageBox.StandardButton.Ok)
+            msg = (
+                "Error loading libraries for Co-registration Plugin. "
+                "Read the install instructions here:\n\n"
+                "https://github.com/SMByC/Coregistration-Qgis-processing#installation"
+            )
+            QMessageBox.critical(None, "Coregistration Plugin: Error loading", msg, QMessageBox.StandardButton.Ok)
 
     return CoregistrationPlugin()
