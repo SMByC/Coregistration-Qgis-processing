@@ -163,17 +163,35 @@ jobs:
           echo "--- stripped extlibs size ---"
           du -sh .
 
+      - name: Create ZIP archive
+        # Use Python's zipfile module — works on all three runners without any
+        # extra tooling (zip CLI is absent on Windows runners).
+        # All Python lines must stay indented inside the YAML literal block.
+        env:
+          ARCHIVE_OS: ${{ matrix.archive_os }}
+          PY_VER: ${{ matrix.python-version }}
+        run: |
+          set -euo pipefail
+          ARCHIVE="extlibs_${ARCHIVE_OS}_py${PY_VER}.zip"
+          export ARCHIVE
+          python -c "
+          import os, zipfile
+          archive = os.environ['ARCHIVE']
+          with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as zf:
+              for dirpath, _, filenames in os.walk('extlibs'):
+                  for fname in filenames:
+                      fpath = os.path.join(dirpath, fname)
+                      zf.write(fpath, os.path.relpath(fpath, 'extlibs'))
+          size_mb = os.path.getsize(archive) / 1024 ** 2
+          print(f'Created {archive} ({size_mb:.1f} MB)')
+          "
+          echo "ARCHIVE_NAME=$ARCHIVE" >> "$GITHUB_ENV"
+
       - name: Upload artifact
-        # upload-artifact@v4 zips the given directory itself, so we let GitHub
-        # do the compression and avoid the previous "zip-inside-a-zip" output.
-        # The artifact's content is flat (entries at the root, no leading
-        # `extlibs/`) because the action treats the path as the artifact root.
-        # The maintainer can download this artifact and upload it directly to
-        # the GitHub Release as `extlibs_<os>_py<ver>.zip`.
         uses: actions/upload-artifact@v4
         with:
-          name: extlibs_${{ matrix.archive_os }}_py${{ matrix.python-version }}
-          path: extlibs
-          compression-level: 9
+          name: ${{ env.ARCHIVE_NAME }}
+          path: ${{ env.ARCHIVE_NAME }}
+          compression-level: 0
           retention-days: 30
           if-no-files-found: error
