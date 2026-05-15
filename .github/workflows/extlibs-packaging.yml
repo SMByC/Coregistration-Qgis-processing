@@ -71,8 +71,6 @@ jobs:
         run: |
           set -euo pipefail
           mamba install --prefix "$CONDA_BUILD_PREFIX" --file requirements.txt -y
-          # Sanity-check: list installed packages in the build env.
-          conda run --prefix "$CONDA_BUILD_PREFIX" python -c "import pkg_resources; pkgs = sorted([d.project_name for d in pkg_resources.working_set]); print('\n'.join(pkgs[:40]))"
 
       - name: Stage site-packages as ./extlibs
         # construct the site-packages path directly from
