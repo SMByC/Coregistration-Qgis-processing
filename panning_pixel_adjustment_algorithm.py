@@ -64,9 +64,10 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
         parameters and outputs associated with it..
         """
         html_help = (
-            "<p>The Pixel Panning Adjustment algorithm provides a simple way to manually shift "
-            "pixels in the X (longitude) and Y (latitude) directions in the whole image given by the user.</p>"
-            "<p>The shift values is in pixel size of the image, but it could be a fractional value.</p>"
+            "<p>Provides a simple way to manually shift an image in the X (longitude) and Y (latitude) "
+            "directions. The shift values are expressed in pixel units and can be fractional.</p>"
+            "<p>This algorithm is not automatic — the user must specify the pixel shift in X and Y. "
+            "Skipping the output will overwrite and update the georeferencing of the input file in place.</p>"
         )
         return html_help
 

@@ -83,16 +83,17 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         parameters and outputs associated with it..
         """
         html_help = (
-            "<p>This Qgis processing generates a new raster file base on the target image with all "
-            "properties from the reference image. This process don't check the content of the pixel, "
-            "this process adjusts the target image to the closest pixel alignment based on the "
-            "reference image. The basic pixel alignment process include:</p>"
+            "<p>Generates a new raster file based on the target image, reprojected and resampled to match "
+            "all spatial properties of the reference image. This process does not examine pixel content — "
+            "it adjusts the target image geometrically to align its pixel grid with the reference. "
+            "The basic pixel alignment process includes:</p>"
             "<ul>"
-            "<li>- Reprojection (only if needed)</li>"
-            "<li>- Resampling (only if pixel sizes are different)</li>"
-            "<li>- Extent/bounds adjustment</li>"
+            "<li>Reprojection (only if needed)</li>"
+            "<li>Resampling (only if pixel sizes are different)</li>"
+            "<li>Extent/bounds adjustment</li>"
             "</ul>"
-            "<p>For a real image to image co-registration use the other two algorithms instead</p>"
+            "<p>For content-based image-to-image co-registration use the Automated Global or Local "
+            "Co-Registration algorithms instead.</p>"
         )
         return html_help
 

@@ -88,23 +88,21 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         should provide a basic description about what the algorithm does and the
         parameters and outputs associated with it..
         """
-        html_help = """
-        <p>Detects and corrects global X/Y shifts misregistrations between two input images in the subpixel scale \
-        using the content of the pixels in the matching window. Perform automatic subpixel co-registration of image \
-        datasets based on an image matching approach working in the frequency domain, combined with a multistage \
-        workflow for effective detection of false-positives [1].
-
-        It is designed to robustly handle the typical \
-        difficulties of multi-sensoral/multi-temporal images. Clouds are automatically handled by the implemented \
-        outlier detection algorithms [1].
-
-        This global algorithm is useful when the target image requires just one shifts in distance and direction \
-        in the whole image.
-
-        [1] This algorithm use Arosics software developed by Daniel Scheffler, for more info \
-        <a href="https://danschef.git-pages.gfz-potsdam.de/arosics/doc/">url</a> and \
-        <a href="https://doi.org/10.3390/rs9070676">paper</a> \
-        </p>"""
+        html_help = (
+            "<p>Detects and corrects a global X/Y shift misregistration between two input images at subpixel "
+            "precision, using the pixel content within a matching window. Performs automatic subpixel "
+            "co-registration based on frequency-domain image matching (phase correlation), combined with a "
+            "multistage workflow for effective detection of false-positives [1].</p>"
+            "<p>Computes a single X/Y translation offset for the entire image by matching a small window "
+            "within the image overlap area. Best used when the target image requires a uniform shift in one "
+            "direction across its full extent. Clouds and outliers are automatically handled [1].</p>"
+            "<p>It is designed to robustly handle the typical difficulties of multi-sensor/multi-temporal "
+            "images.</p>"
+            "<p>Key parameters: matching window center and size, maximum shift distance.</p>"
+            "<p>[1] This algorithm uses AROSICS software developed by Daniel Scheffler — "
+            "<a href='https://danschef.git-pages.gfz-potsdam.de/arosics/doc/'>documentation</a> and "
+            "<a href='https://doi.org/10.3390/rs9070676'>paper (Scheffler et al. 2017, Remote Sensing 9(7):676)</a>.</p>"
+        )
         return html_help
 
     def createInstance(self):

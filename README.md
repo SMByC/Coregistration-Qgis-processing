@@ -1,6 +1,6 @@
 # Coregistration
 
-Image to image automatic co-registration processing Qgis plugin. This plugin uses AROSICS to perform automatic subpixel co-registration of image datasets based on an image matching approach working in the frequency domain.
+Image to image automatic co-registration processing QGIS plugin. This plugin uses AROSICS to perform automatic subpixel co-registration of image datasets based on an image matching approach working in the frequency domain.
 
 _This plugin has four algorithms:_
 
@@ -14,13 +14,13 @@ _This plugin has four algorithms:_
 <img src="docs/img/Basic%20pixel%20alignment.webp" height="380px" style="margin: auto;display: block;">
 </div>
 
-This Qgis processing generates a new raster file base on the target image with all properties from the reference image. This process don't check the content of the pixel, this process adjusts the target image to the closest pixel alignment based on the reference image. The basic pixel alignment process include:
+This QGIS processing generates a new raster file based on the target image, reprojected and resampled to match all spatial properties of the reference image. This process does not examine pixel content — it adjusts the target image geometrically to align its pixel grid with the reference. The basic pixel alignment process includes:
 
 * Reprojection (only if needed)
 * Resampling (only if pixel sizes are different)
 * Extent/bounds adjustment
 
-For a real image to image co-registration use the following two algorithms instead
+For content-based image-to-image co-registration use algorithms (3) or (4) instead.
 
 ### (2) Panning pixel adjustment
 
@@ -28,14 +28,13 @@ For a real image to image co-registration use the following two algorithms inste
 <img src="docs/img/Panning%20pixel%20adjustment.webp" height="300px" style="margin: auto;display: block;">
 </div>
 
-The Pixel Panning Adjustment algorithm provides a simple way to manually shift pixels in the X (longitude) and Y 
-(latitude) directions in the whole image given by the user. This algorithm is not automatic, the user must select the pixel shift in X and Y.
+The Panning Pixel Adjustment algorithm provides a simple way to manually shift an image in the X (longitude) and Y (latitude) directions. The shift values are expressed in pixel units and can be fractional. This algorithm is not automatic — the user must specify the pixel shift in X and Y. Skipping the output will overwrite and update the georeferencing of the input file in place.
 
 ## Automated global and local image to image co-registration
 
-Detects and corrects global and local X/Y shifts misregistrations between two input images in the subpixel scale using the content of the pixels in the matching window. Perform automatic subpixel co-registration of image datasets based on an image matching approach working in the frequency domain, combined with a multistage workflow for effective detection of false-positives [1].
-        
-It is designed to robustly handle the typical difficulties of multi-sensoral/multi-temporal images. Clouds are automatically handled by the implemented outlier detection algorithms [1].
+Detects and corrects global and local X/Y shift misregistrations between two input images at subpixel precision, using the pixel content within a matching window. Performs automatic subpixel co-registration based on frequency-domain image matching (phase correlation), combined with a multistage workflow for effective detection of false-positives [1].
+
+It is designed to robustly handle the typical difficulties of multi-sensor/multi-temporal images. Clouds and other outliers are automatically handled by the implemented outlier detection algorithms [1].
 
 ### (3) Global
 
@@ -43,7 +42,9 @@ It is designed to robustly handle the typical difficulties of multi-sensoral/mul
 <img src="docs/img/Automated%20global%20co-registration.webp" height="480px" style="margin: auto;display: block;">
 </div>
 
-This global algorithm is useful when the target image requires just one shifts in distance and direction in the whole image.
+Computes a single X/Y translation offset for the entire image by matching a small window within the image overlap area. This is the fast option, correcting translational shifts only. Best used when the target image requires a uniform shift in one direction across its full extent.
+
+Key parameters: matching window center and size, maximum shift distance.
 
 ### (4) Local
 
@@ -51,9 +52,13 @@ This global algorithm is useful when the target image requires just one shifts i
 <img src="docs/img/Automated%20local%20co-registration.webp" height="480px" style="margin: auto;display: block;">
 </div>
 
-This local algorithm is useful when the target image requires different pixel shifts in distances and directions. The precision of this is based on mainly in two input parameters: tie point grid resolution and matching window size. This is significantly more comprehensive and slower than global algorithm.
+Computes a dense tie point grid across the image overlap, validates each point through a multistage outlier detection workflow, and derives a spatially variable correction that is applied by warping the target image. Best used when the target image has spatially varying misregistration — i.e., different shifts in different areas.
 
-*[1] These algorithms use AROSICS software developed by Daniel Scheffler, for more info <a href="https://danschef.git-pages.gfz-potsdam.de/arosics/doc/">url</a> and <a href="https://doi.org/10.3390/rs9070676">paper</a>.
+The accuracy of this algorithm depends primarily on two parameters: tie point grid resolution and matching window size. It is significantly more comprehensive and slower than the global algorithm.
+
+Key parameters: tie point grid resolution, matching window size, maximum shift distance.
+
+*[1] These algorithms use AROSICS software developed by Daniel Scheffler, for more info <a href="https://danschef.git-pages.gfz-potsdam.de/arosics/doc/">documentation</a> and <a href="https://doi.org/10.3390/rs9070676">paper (Scheffler et al. 2017, Remote Sensing 9(7):676)</a>.
 
 ## Compatibility
 

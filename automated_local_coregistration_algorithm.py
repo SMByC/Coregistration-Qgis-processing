@@ -87,26 +87,23 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         should provide a basic description about what the algorithm does and the
         parameters and outputs associated with it..
         """
-        html_help = """
-        <p>Detects and corrects local X/Y shifts misregistrations between two input images in the subpixel scale \
-        using the content of the pixels in the matching window. Perform automatic subpixel co-registration of image \
-        datasets based on an image matching approach working in the frequency domain, combined with a multistage \
-        workflow for effective detection of false-positives [1].
-
-        It is designed to robustly handle the typical \
-        difficulties of multi-sensoral/multi-temporal images. Clouds are automatically handled by the implemented \
-        outlier detection algorithms [1].
-
-        This local algorithm is useful when the target image requires different pixel shifts in distances and \
-        directions. The precision of this is based on mainly in two input parameters: tie point grid resolution and \
-        matching window size.
-
-        This is significantly more comprehensive and slower than global algorithm.
-
-        [1] This algorithm use Arosics software developed by Daniel Scheffler, for more info \
-        <a href="https://danschef.git-pages.gfz-potsdam.de/arosics/doc/">url</a> and \
-        <a href="https://doi.org/10.3390/rs9070676">paper</a> \
-        </p>"""
+        html_help = (
+            "<p>Detects and corrects spatially variable X/Y shift misregistrations between two input images "
+            "at subpixel precision. Performs automatic subpixel co-registration based on frequency-domain "
+            "image matching (phase correlation), combined with a multistage workflow for effective detection "
+            "of false-positives [1].</p>"
+            "<p>Computes a dense tie point grid across the image overlap, validates each point through a "
+            "multistage outlier detection workflow, and derives a spatially variable correction that is "
+            "applied by warping the target image. Best used when the target image has spatially varying "
+            "misregistration — i.e., different shifts in different areas. Clouds and outliers are "
+            "automatically handled [1].</p>"
+            "<p>It is designed to robustly handle the typical difficulties of multi-sensor/multi-temporal "
+            "images. This algorithm is significantly more comprehensive and slower than the global algorithm.</p>"
+            "<p>Key parameters: tie point grid resolution, matching window size, maximum shift distance.</p>"
+            "<p>[1] This algorithm uses AROSICS software developed by Daniel Scheffler — "
+            "<a href='https://danschef.git-pages.gfz-potsdam.de/arosics/doc/'>documentation</a> and "
+            "<a href='https://doi.org/10.3390/rs9070676'>paper (Scheffler et al. 2017, Remote Sensing 9(7):676)</a>.</p>"
+        )
         return html_help
 
     def createInstance(self):
