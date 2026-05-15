@@ -54,8 +54,15 @@ jobs:
 
       - name: Install runtime libraries
         run: |
-          # mamba is much faster than vanilla conda for solving the env.
-          mamba install --file requirements.txt -y
+          set -euo pipefail
+          # requirements.txt lives inside Coregistration/ (the plugin subdirectory).
+          # We pass --name explicitly so the install always targets the right env,
+          # regardless of whether `conda activate build` took effect in this shell.
+          mamba install --name build --file Coregistration/requirements.txt -y
+          # Sanity-check: site-packages should contain more than just pip/setuptools.
+          SITE=$(python -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
+          echo "Installed package dirs in $SITE:"
+          ls "$SITE" | head -30
 
       - name: Locate site-packages and stage as ./extlibs
         run: |
