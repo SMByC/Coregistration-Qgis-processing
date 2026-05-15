@@ -60,6 +60,9 @@ Coregistration = [
 # ---------------------------------------------------------------------------
 # Linting / formatting tool configuration
 # ---------------------------------------------------------------------------
+[tool.pyright]
+extraPaths = [".."]  # include project folder
+
 [tool.ruff]
 target-version = "py312"
 line-length = 120

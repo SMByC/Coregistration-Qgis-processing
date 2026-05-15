@@ -16,6 +16,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+ This script initializes the plugin, making it known to QGIS.
 """
 
 import importlib
@@ -27,42 +28,47 @@ from qgis.PyQt.QtWidgets import QMessageBox
 from Coregistration.utils import extralibs
 
 
-def check_dependencies():
+def check_dependencies() -> bool:
+    """Return ``True`` if all required extra libraries are importable and meet the
+    minimum version requirement (arosics >= 1.13).
+    """
     try:
-        import arosics
+        import arosics  # noqa: F401
         import sklearn  # noqa: F401
 
+        # Reload so that newly-added extlibs are picked up when this function
+        # is called a second time after install().
         importlib.reload(arosics)
 
-        # Use packaging.version when available, otherwise fall back to a
-        # tuple comparison so this works on minimal Python environments.
         try:
-            from packaging import version as _pkg_version
+            from packaging import version as _v
 
-            if _pkg_version.parse(arosics.version.__version__) < _pkg_version.parse("1.12"):
-                return False
+            return _v.parse(arosics.version.__version__) >= _v.parse("1.13")
         except ImportError:
             parts = arosics.version.__version__.split(".")
             try:
-                major, minor = int(parts[0]), int(parts[1])
+                return (int(parts[0]), int(parts[1])) >= (1, 13)
             except (ValueError, IndexError):
-                return True  # if we can't parse, assume OK
-            if (major, minor) < (1, 12):
-                return False
+                return True  # cannot parse → assume OK
 
-        return True
     except ImportError:
         return False
 
 
-def pre_init_plugin():
-
-    extra_libs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "extlibs"))
-
+def pre_init_plugin() -> None:
+    """Add the bundled *extlibs* directory to ``sys.path`` so that the extra
+    Python packages can be imported before the plugin body is loaded.
+    """
+    extra_libs_path = extralibs.get_extlibs_install_path()
     if os.path.isdir(extra_libs_path):
-        # add to python path so subsequent imports (and importlib.metadata
-        # in modern Python) can discover the bundled distributions
         site.addsitedir(extra_libs_path)
+        # Register with pkg_resources when available (removed in Python 3.12+)
+        try:
+            import pkg_resources
+
+            pkg_resources.working_set.add_entry(extra_libs_path)
+        except ImportError:
+            pass
 
 
 # noinspection PyPep8Naming
@@ -74,25 +80,25 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     from Coregistration.coregistration_plugin import CoregistrationPlugin
 
-    # load extra python dependencies
+    # Attempt to load bundled extra dependencies first
     pre_init_plugin()
 
     if not check_dependencies():
-        # clean the extra libs
-        if not extralibs.clean():
-            return CoregistrationPlugin()
-
-        # install extra python dependencies
+        # Extra libs missing or outdated - download and install them, then retry
         extralibs.install()
-        # load extra python dependencies
         pre_init_plugin()
 
         if not check_dependencies():
             msg = (
-                "Error loading libraries for Co-registration Plugin. "
-                "Read the install instructions here:\n\n"
+                "Error loading libraries for Co-registration Plugin.\n\n"
+                "Read the install instructions here:\n"
                 "https://github.com/SMByC/Coregistration-Qgis-processing#installation"
             )
-            QMessageBox.critical(None, "Coregistration Plugin: Error loading", msg, QMessageBox.StandardButton.Ok)
+            QMessageBox.critical(
+                None,
+                "Coregistration Plugin: Error loading",
+                msg,
+                QMessageBox.StandardButton.Ok,
+            )
 
     return CoregistrationPlugin()

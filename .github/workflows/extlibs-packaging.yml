@@ -1,0 +1,176 @@
+name: Build extlibs ZIPs
+
+# Manually triggered: dispatch from the Actions tab whenever a new extlibs
+# build is needed (e.g. after bumping plugin/arosics versions). The job
+# produces one ZIP per OS x Python version, named to match the URL pattern
+# expected by Coregistration/utils/extralibs.py.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Cancel superseded runs on the same branch to save CI minutes.
+concurrency:
+  group: extlibs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: extlibs (${{ matrix.archive_os }} / py${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Keep python-version in sync with SUPPORTED_PY_VERSIONS in
+        # Coregistration/utils/extralibs.py
+        python-version: ["3.12", "3.13", "3.14"]
+        include:
+          - os: ubuntu-latest
+            archive_os: linux
+          - os: macos-latest
+            archive_os: macos
+          - os: windows-latest
+            archive_os: windows
+
+    defaults:
+      run:
+        # `-el {0}` makes sure conda activation is applied to every step
+        # (the `-e` is important so the script fails on the first error).
+        shell: bash -el {0}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Miniforge (with mamba)
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          python-version: ${{ matrix.python-version }}
+          channels: conda-forge
+          channel-priority: strict
+          activate-environment: build
+          auto-activate-base: false
+
+      - name: Install runtime libraries
+        run: |
+          # mamba is much faster than vanilla conda for solving the env.
+          mamba install --file requirements.txt -y
+
+      - name: Locate site-packages and stage as ./extlibs
+        run: |
+          set -euo pipefail
+          SITE_PACKAGES=$(python -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
+          echo "site-packages: $SITE_PACKAGES"
+          du -sh "$SITE_PACKAGES" || true
+          mv "$SITE_PACKAGES" ./extlibs
+
+      - name: Trim extlibs to reduce ZIP size
+        run: |
+          set -euxo pipefail
+          cd extlibs
+
+          # --- 1. Packages already shipped by QGIS itself ----------------
+          rm -rf \
+            numpy numpy-* numpy.libs \
+            osgeo* gdal* GDAL* \
+            pyproj pyproj-* \
+            shapely shapely-* Shapely-* \
+            fiona fiona-* Fiona-*
+
+          # --- 2. Packaging tooling never used at runtime ----------------
+          rm -rf \
+            pip pip-* \
+            setuptools setuptools-* \
+            wheel wheel-* \
+            pkg_resources \
+            distutils-precedence.pth
+
+          # --- 3. Heavy plotting / interactive stacks pulled in transit --
+          #     (arosics imports them only for optional plotting features)
+          rm -rf \
+            plotly plotly-* \
+            panel panel-* \
+            bokeh bokeh-* \
+            holoviews holoviews-* \
+            dash dash-* \
+            jupyterlab* jupyter* notebook* \
+            ipython* ipykernel* \
+            babel babel-* rtree rtree-*
+
+          # --- 4. Strip per-package dev junk -----------------------------
+          find . -type d \( \
+              -name "tests" -o -name "test" \
+              -o -name "examples" -o -name "example" \
+              -o -name "__pycache__" \
+              -o -name ".pytest_cache" -o -name ".mypy_cache" \
+            \) -prune -exec rm -rf {} +
+
+          # --- 5. Per-package documentation files ------------------------
+          find . -type f \( \
+              -iname "*.md" \
+              -o -iname "README*" \
+              -o -iname "CHANGELOG*" \
+              -o -iname "HISTORY*" \
+              -o -iname "AUTHORS*" \
+              -o -iname "CONTRIBUTING*" \
+              -o -iname "*.rst" \
+            \) -delete
+
+          # --- 6. Type stubs are not used at runtime ---------------------
+          find . -type f -iname "*.pyi" -delete
+
+          # --- 7. Bytecode caches (Python will regenerate at first use) --
+          find . -type f \( -name "*.pyc" -o -name "*.pyo" \) -delete
+
+          # --- 8. Slim down .dist-info/ metadata folders -----------------
+          #     Keep METADATA (importlib.metadata needs it) but drop the
+          #     bulky pieces that no consumer reads at runtime.
+          find . -type d -name "*.dist-info" -print0 | while IFS= read -r -d '' d; do
+              rm -f \
+                "$d/RECORD" \
+                "$d/INSTALLER" \
+                "$d/REQUESTED" \
+                "$d/WHEEL" \
+                "$d/AUTHORS" \
+                "$d/LICENSE"* \
+                "$d/NOTICE"*
+          done
+
+          echo "--- trimmed extlibs size ---"
+          du -sh .
+          du -sh */ 2>/dev/null | sort -h | tail -n 20 || true
+
+      - name: Strip debug symbols from native modules (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          set -eu
+          cd extlibs
+          if [ "${{ runner.os }}" = "macOS" ]; then
+              # macOS strip: -x removes local symbols only (safe for Python ext modules)
+              find . -type f \( -name "*.so" -o -name "*.dylib" \) -print0 \
+                  | xargs -0 -r -n 50 strip -x 2>/dev/null || true
+          else
+              find . -type f -name "*.so*" -print0 \
+                  | xargs -0 -r -n 50 strip --strip-unneeded 2>/dev/null || true
+          fi
+          echo "--- stripped extlibs size ---"
+          du -sh .
+
+      - name: Create ZIP archive
+        run: |
+          set -euo pipefail
+          ARCHIVE="extlibs_${{ matrix.archive_os }}_py${{ matrix.python-version }}.zip"
+          (cd extlibs && zip -9rq "../$ARCHIVE" .)
+          ls -lh "$ARCHIVE"
+          echo "ARCHIVE_NAME=$ARCHIVE" >> "$GITHUB_ENV"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARCHIVE_NAME }}
+          path: ${{ env.ARCHIVE_NAME }}
+          # The file is already a compressed ZIP, no point re-compressing.
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
