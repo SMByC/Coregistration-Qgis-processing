@@ -43,29 +43,29 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-version: latest
-          python-version: ${{ matrix.python-version }}
           channels: conda-forge
           channel-priority: strict
-          activate-environment: build
-          auto-activate-base: false
+          # Do NOT ask the action to create/activate a named "build" env.
+          # On Windows the action invokes `mamba.bat create --name build ...`
+          # which fails to register the env with recent mamba (the post-step
+          # `conda activate build` errors with EnvironmentNameNotFound).
+          # The action only warns, the job continues, and packages end up
+          # installed into base instead of `build` — producing a broken ZIP
+          # with only the base packaging libs. We create the env ourselves
+          # below with an explicit --prefix, which avoids the named-env path.
+          activate-environment: base
+          auto-activate-base: true
 
-      - name: Resolve build env prefix
-        # Determine the exact filesystem prefix of the `build` conda env once,
-        # and export it as CONDA_BUILD_PREFIX for all subsequent steps.
-        # We use `conda info --json` which is reliable on all platforms and
-        # does not depend on shell activation state.
+      - name: Create build env and resolve prefix
+        # Create the env explicitly with --prefix so the location is known
+        # and identical across OSes, sidestepping the named-env registration
+        # bug on Windows.
         run: |
           set -euo pipefail
-          PREFIX=$(conda info --json | python -c "
-          import json, sys, os
-          data = json.load(sys.stdin)
-          for p in data['envs']:
-              if os.path.basename(p) == 'build':
-                  print(p)
-                  break
-          ")
+          PREFIX="${RUNNER_TEMP}/build_env"
+          mamba create --yes --prefix "$PREFIX" "python=${{ matrix.python-version }}"
           echo "CONDA_BUILD_PREFIX=$PREFIX" >> "$GITHUB_ENV"
-          echo "Resolved build env prefix: $PREFIX"
+          echo "Build env prefix: $PREFIX"
 
       - name: Install runtime libraries
         run: |
