@@ -49,37 +49,65 @@ jobs:
           activate-environment: build
           auto-activate-base: false
 
+      - name: Resolve build env prefix
+        # Determine the exact filesystem prefix of the `build` conda env once,
+        # and export it as CONDA_BUILD_PREFIX for all subsequent steps.
+        # We use `conda info --json` which is reliable on all platforms and
+        # does not depend on shell activation state.
+        run: |
+          set -euo pipefail
+          PREFIX=$(conda info --json | python -c "
+          import json, sys, os
+          data = json.load(sys.stdin)
+          for p in data['envs']:
+              if os.path.basename(p) == 'build':
+                  print(p)
+                  break
+          ")
+          echo "CONDA_BUILD_PREFIX=$PREFIX" >> "$GITHUB_ENV"
+          echo "Resolved build env prefix: $PREFIX"
+
       - name: Install runtime libraries
         run: |
           set -euo pipefail
-          mamba install --name build --file requirements.txt -y
-          SITE=$(conda run -n build python -c \
-            "import sysconfig; print(sysconfig.get_paths()['purelib'])")
-          echo "Installed package dirs in $SITE:"
-          ls "$SITE" | head -30
+          mamba install --prefix "$CONDA_BUILD_PREFIX" --file requirements.txt -y
+          # Sanity-check: list installed packages in the build env.
+          conda run --prefix "$CONDA_BUILD_PREFIX" python -c "import pkg_resources; pkgs = sorted([d.project_name for d in pkg_resources.working_set]); print('\n'.join(pkgs[:40]))"
 
-      - name: Locate site-packages and stage as ./extlibs
+      - name: Stage site-packages as ./extlibs
+        # construct the site-packages path directly from
+        # CONDA_BUILD_PREFIX using the OS-specific conda layout:
+        #   Linux/macOS : <PREFIX>/lib/pythonX.Y/site-packages
+        #   Windows     : <PREFIX>/Lib/site-packages  (no version component)
         run: |
           set -euo pipefail
-          PURELIB=$(conda run -n build python -c \
-            "import sysconfig; print(sysconfig.get_paths()['purelib'])")
-          PLATLIB=$(conda run -n build python -c \
-            "import sysconfig; print(sysconfig.get_paths()['platlib'])")
-          echo "purelib : $PURELIB"
-          echo "platlib : $PLATLIB"
-          du -sh "$PURELIB" || true
+
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            SITE="$CONDA_BUILD_PREFIX/Lib/site-packages"
+          else
+            PYVER=$(conda run --prefix "$CONDA_BUILD_PREFIX" python -c \
+              "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+            SITE="$CONDA_BUILD_PREFIX/lib/python${PYVER}/site-packages"
+            # Some Linux distros also install native extensions under lib64/
+            SITE64="$CONDA_BUILD_PREFIX/lib64/python${PYVER}/site-packages"
+          fi
+
+          echo "site-packages : $SITE"
+          du -sh "$SITE" || true
 
           mkdir -p ./extlibs
-          cp -a "$PURELIB/." ./extlibs/
+          cp -a "$SITE/." ./extlibs/
 
-          if [ "$PLATLIB" != "$PURELIB" ]; then
-            echo "platlib differs from purelib — merging $PLATLIB"
-            cp -a "$PLATLIB/." ./extlibs/
+          # Merge lib64 if it exists and differs (Linux only)
+          if [[ "${{ runner.os }}" != "Windows" ]] && \
+             [ -d "${SITE64:-}" ] && [ "$SITE64" != "$SITE" ]; then
+            echo "Merging lib64 site-packages: $SITE64"
+            cp -a "$SITE64/." ./extlibs/
           fi
 
           echo "--- extlibs contents after staging ---"
-          ls ./extlibs | head -30
-          echo "Total size:"
+          ls ./extlibs | head -40
+          echo "--- Total size ---"
           du -sh ./extlibs
 
       - name: Trim extlibs to reduce ZIP size
@@ -104,6 +132,7 @@ jobs:
             distutils-precedence.pth
 
           # --- 3. Heavy plotting / interactive stacks pulled in transit --
+          # (arosics imports them only for optional plotting features)
           rm -rf \
             plotly plotly-* \
             panel panel-* \
@@ -133,7 +162,7 @@ jobs:
             -o -iname "*.rst" \
           \) -delete
 
-          # --- 6. Bytecode caches ----------------------------------------
+          # --- 6. Bytecode caches (Python will regenerate at first use) --
           find . -type f \( -name "*.pyc" -o -name "*.pyo" \) -delete
 
           # --- 7. Slim down .dist-info/ metadata folders -----------------
