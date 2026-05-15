@@ -235,7 +235,9 @@ class DownloadAndUnzip(QDialog):
         """Extract the downloaded ZIP to ``self.output_path``.
 
         All member paths are validated against *output_path* before any file
-        is written (zip-slip attack prevention).
+        is written (zip-slip attack prevention).  On Windows, DLLs that are
+        currently loaded by QGIS cannot be overwritten; those files are skipped
+        with a warning so the rest of the extraction still completes.
         """
         if self._zip_path is None:
             return False
@@ -243,12 +245,25 @@ class DownloadAndUnzip(QDialog):
         QApplication.processEvents()
         try:
             real_output = os.path.realpath(self.output_path)
+            skipped = 0
             with zipfile.ZipFile(self._zip_path, "r") as zf:
                 for member in zf.infolist():
                     member_dest = os.path.realpath(os.path.join(real_output, member.filename))
                     if not (member_dest == real_output or member_dest.startswith(real_output + os.sep)):
                         raise ValueError(f"Zip-slip rejected for entry: {member.filename!r}")
-                zf.extractall(real_output)
+                    try:
+                        zf.extract(member, real_output)
+                    except PermissionError:
+                        # On Windows, in-use DLLs cannot be overwritten; keep the
+                        # existing file and continue extracting the remaining members.
+                        _log(f"Skipping locked file (in use): {member.filename}", level="Warning")
+                        skipped += 1
+            if skipped:
+                _log(
+                    f"{skipped} file(s) could not be replaced because they are in use. "
+                    "Restart QGIS to complete the installation.",
+                    level="Warning",
+                )
             return True
         except Exception as exc:
             _log(f"Extraction error: {exc}", level="Critical")
@@ -268,15 +283,24 @@ def get_extlibs_install_path() -> str:
 
 def install() -> None:
     """Download and install the extra Python libraries required by this plugin."""
-    # Remove legacy platform-specific extlibs directories from older versions
-    plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    for old_name in ("extlibs_linux", "extlibs_windows", "extlibs_macos"):
-        shutil.rmtree(os.path.join(plugin_dir, old_name), ignore_errors=True)
-
     extlibs_dir = get_extlibs_install_path()
     if os.path.isdir(extlibs_dir):
         _log(f"Removing existing extlibs at: {extlibs_dir}")
         shutil.rmtree(extlibs_dir, ignore_errors=True)
+        if os.path.isdir(extlibs_dir):
+            # On Windows, DLLs currently loaded by QGIS cannot be deleted.
+            _log(
+                "Some extlibs files could not be removed (in use). Restart QGIS to complete installation.",
+                level="Warning",
+            )
+            QMessageBox.information(
+                None,
+                "Co-Registration Plugin: Restart required",
+                "Some library files are currently in use and could not be replaced.\n\n"
+                "Please restart QGIS to complete the installation of Co-Registration plugin.",
+                QMessageBox.StandardButton.Ok,
+            )
+            return
     os.makedirs(extlibs_dir, exist_ok=True)
 
     url = _get_extlibs_url()
