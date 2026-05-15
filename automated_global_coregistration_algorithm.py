@@ -35,7 +35,7 @@ from qgis.core import (
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 
-from Coregistration.utils.system_utils import get_raster_driver_name_by_extension
+from Coregistration.utils.system_utils import get_raster_driver_name_by_extension, redirect_output_to_feedback
 
 
 class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
@@ -286,24 +286,24 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         feedback.pushInfo("Image to image Co-Registration:")
         feedback.pushInfo("\nProcessing file: " + img_tgt)
 
-        feedback.pushInfo("\nPerform automatic subpixel co-registration with AROSICS...")
-        feedback.pushInfo("\n(To check the complete log of the process, open the Python Console)...\n")
-        CR = COREG(
-            img_ref,
-            img_tgt,
-            path_out=output_file,
-            align_grids=align_grids,
-            match_gsd=match_gsd,
-            wp=(wp_x, wp_y),
-            ws=(ws_x, ws_y),
-            resamp_alg_deshift=resampling_method,
-            max_shift=max_shift,
-            max_iter=15,
-            fmt_out=output_driver_name,
-            out_crea_options=["WRITE_METADATA=NO"],
-            CPUs=1 if platform.system() == "Windows" else None,
-        )
-        CR.correct_shifts()
+        feedback.pushInfo("\nPerform automatic subpixel co-registration with AROSICS...\n")
+        with redirect_output_to_feedback(feedback):
+            CR = COREG(
+                img_ref,
+                img_tgt,
+                path_out=output_file,
+                align_grids=align_grids,
+                match_gsd=match_gsd,
+                wp=(wp_x, wp_y),
+                ws=(ws_x, ws_y),
+                resamp_alg_deshift=resampling_method,
+                max_shift=max_shift,
+                max_iter=15,
+                fmt_out=output_driver_name,
+                out_crea_options=["WRITE_METADATA=NO"],
+                CPUs=1 if platform.system() == "Windows" else None,
+            )
+            CR.correct_shifts()
 
         feedback.pushInfo("DONE\n")
 

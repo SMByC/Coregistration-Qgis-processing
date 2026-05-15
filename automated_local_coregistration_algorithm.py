@@ -34,7 +34,7 @@ from qgis.core import (
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 
-from Coregistration.utils.system_utils import get_raster_driver_name_by_extension
+from Coregistration.utils.system_utils import get_raster_driver_name_by_extension, redirect_output_to_feedback
 
 
 class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
@@ -273,30 +273,30 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         feedback.pushInfo("Image to image Co-Registration:")
         feedback.pushInfo("\nProcessing file: " + img_tgt)
 
-        feedback.pushInfo("\nPerform automatic subpixel co-registration with AROSICS...")
-        feedback.pushInfo("\n(To check the complete log of the process, open the Python Console)...")
+        feedback.pushInfo("\nPerform automatic subpixel co-registration with AROSICS...\n")
         if platform.system() == "Windows":
             feedback.reportError(
                 "\nWarning: in Windows due to restrictions to enable multiprocessing inside QGIS, "
                 "the process could take longer. Continue with one core ...\n",
                 fatalError=False,
             )
-        CRL = COREG_LOCAL(
-            img_ref,
-            img_tgt,
-            path_out=output_file,
-            align_grids=align_grids,
-            match_gsd=match_gsd,
-            grid_res=grid_res,
-            window_size=(window_size, window_size),
-            resamp_alg_deshift=resampling_method,
-            max_shift=max_shift,
-            max_iter=15,
-            fmt_out=output_driver_name,
-            out_crea_options=["WRITE_METADATA=NO"],
-            CPUs=1,
-        )
-        CRL.correct_shifts()
+        with redirect_output_to_feedback(feedback):
+            CRL = COREG_LOCAL(
+                img_ref,
+                img_tgt,
+                path_out=output_file,
+                align_grids=align_grids,
+                match_gsd=match_gsd,
+                grid_res=grid_res,
+                window_size=(window_size, window_size),
+                resamp_alg_deshift=resampling_method,
+                max_shift=max_shift,
+                max_iter=15,
+                fmt_out=output_driver_name,
+                out_crea_options=["WRITE_METADATA=NO"],
+                CPUs=1,
+            )
+            CRL.correct_shifts()
 
         feedback.pushInfo("DONE\n")
 
