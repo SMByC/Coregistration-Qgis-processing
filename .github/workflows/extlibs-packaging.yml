@@ -24,10 +24,14 @@ jobs:
       matrix:
         # Keep python-version in sync with SUPPORTED_PY_VERSIONS in
         # Coregistration/utils/extralibs.py
-        python-version: ["3.14"]
+        python-version: ["3.12", "3.13", "3.14"]
         include:
           - os: ubuntu-latest
             archive_os: linux
+          - os: macos-latest
+            archive_os: macos
+          - os: windows-latest
+            archive_os: windows
 
     defaults:
       run:
