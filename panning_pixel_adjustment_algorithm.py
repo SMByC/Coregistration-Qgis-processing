@@ -175,52 +175,76 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
         if os.path.isfile(file_in_path + ".aux.xml"):
             os.remove(file_in_path + ".aux.xml")
 
-        input_ds = gdal.Open(file_in_path, gdal.GA_ReadOnly)
-        gt = input_ds.GetGeoTransform()
-        # get the pixel size in x and y
-        pixel_size_x = abs(gt[1])
-        pixel_size_y = abs(gt[5])
-
-        # Convert tuple to list, so we can modify it
-        gtl = list(gt)
-        gtl[0] = gtl[0] + pixel_size_x * shift_in_x  # Move horizontal
-        gtl[3] = gtl[3] + pixel_size_y * shift_in_y  # Move vertical
-        # Save the geotransform to the raster
-        input_ds.SetGeoTransform(tuple(gtl))
-        # save the raster to a new file
-
         skip_output = output_file == ""
+
         if skip_output:
+            # Overwrite in place: only update the geotransform tag in the
+            # existing file. We avoid CreateCopy here because it rewrites the
+            # whole file (write temp → delete original → rename), which fails on
+            # Windows when QGIS holds an open handle on the loaded layer
+            # ("Permission denied" on the delete step). Updating the geotransform
+            # via GA_Update touches only the header, so the existing file handle
+            # does not block it.
+            update_ds = gdal.Open(file_in_path, gdal.GA_Update)
+            gt = update_ds.GetGeoTransform()
+            pixel_size_x = abs(gt[1])
+            pixel_size_y = abs(gt[5])
+            gtl = list(gt)
+            gtl[0] = gtl[0] + pixel_size_x * shift_in_x  # Move horizontal
+            gtl[3] = gtl[3] + pixel_size_y * shift_in_y  # Move vertical
+            update_ds.SetGeoTransform(tuple(gtl))
+            update_ds.FlushCache()
+            update_ds = None
+
             output_file = file_in_path
 
-        output_driver_name = get_raster_driver_name_by_extension(output_file)
+            # remove .aux.xml output file
+            if os.path.isfile(output_file + ".aux.xml"):
+                os.remove(output_file + ".aux.xml")
 
-        # fix save and load ENVI files
-        if output_driver_name == "ENVI":
-            output_file_envi = output_file.replace(".hdr", ".dat")
-            if context.willLoadLayerOnCompletion(output_file):
-                layer_detail = context.LayerDetails(
-                    os.path.basename(output_file_envi),
-                    context.project(),
-                    os.path.basename(output_file_envi),
-                    QgsProcessingUtils.LayerHint.Raster,
-                )
-                context.setLayersToLoadOnCompletion({output_file_envi: layer_detail})
-            output_file = output_file_envi
-
-        # gdal driver based on the output file
-        gdal_driver = gdal.GetDriverByName(output_driver_name)
-        gdal_driver.CreateCopy(output_file, input_ds)
-        input_ds = None
-
-        # remove .aux.xml output file
-        if os.path.isfile(output_file + ".aux.xml"):
-            os.remove(output_file + ".aux.xml")
-
-        # repainting the layer in the canvas
-        if skip_output:
-            file_in.reload()
+            # Re-bind the layer to its source so QGIS fully rebuilds its
+            # internal state (data provider, extent, renderer/symbology caches).
+            # Just calling reload() / reloadData() is not enough: the renderer
+            # holds per-pixel transforms cached from the OLD geotransform, so
+            # the shifted edges render as blank until the layer is closed and
+            # reopened. setDataSource() is the API equivalent of "close and
+            # reopen", and loadDefaultStyleFlag=False preserves the user's
+            # current style/symbology.
+            file_in.dataProvider().reloadData()
+            file_in.setDataSource(file_in.source(), file_in.name(), file_in.providerType(), False)
             file_in.triggerRepaint()
+        else:
+            input_ds = gdal.Open(file_in_path, gdal.GA_ReadOnly)
+            gt = input_ds.GetGeoTransform()
+            pixel_size_x = abs(gt[1])
+            pixel_size_y = abs(gt[5])
+            gtl = list(gt)
+            gtl[0] = gtl[0] + pixel_size_x * shift_in_x  # Move horizontal
+            gtl[3] = gtl[3] + pixel_size_y * shift_in_y  # Move vertical
+            input_ds.SetGeoTransform(tuple(gtl))
+
+            output_driver_name = get_raster_driver_name_by_extension(output_file)
+
+            # fix save and load ENVI files
+            if output_driver_name == "ENVI":
+                output_file_envi = output_file.replace(".hdr", ".dat")
+                if context.willLoadLayerOnCompletion(output_file):
+                    layer_detail = context.LayerDetails(
+                        os.path.basename(output_file_envi),
+                        context.project(),
+                        os.path.basename(output_file_envi),
+                        QgsProcessingUtils.LayerHint.Raster,
+                    )
+                    context.setLayersToLoadOnCompletion({output_file_envi: layer_detail})
+                output_file = output_file_envi
+
+            gdal_driver = gdal.GetDriverByName(output_driver_name)
+            gdal_driver.CreateCopy(output_file, input_ds)
+            input_ds = None
+
+            # remove .aux.xml output file
+            if os.path.isfile(output_file + ".aux.xml"):
+                os.remove(output_file + ".aux.xml")
 
         feedback.pushInfo("--> done\n")
 
