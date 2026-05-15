@@ -4,7 +4,7 @@
                           A QGIS plugin processing
  Image co-registration, projection and pixel alignment based on a target image
                               -------------------
-        copyright            : (C) 2021-2024 by Xavier Corredor Llano, SMByC
+        copyright            : (C) 2021-2026 by Xavier Corredor Llano, SMByC
         email                : xavier.corredor.llano@gmail.com
  ***************************************************************************/
 
