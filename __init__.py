@@ -34,7 +34,6 @@ def check_dependencies() -> bool:
     """
     try:
         import arosics  # noqa: F401
-        import sklearn  # noqa: F401
 
         # Reload so that newly-added extlibs are picked up when this function
         # is called a second time after install().
