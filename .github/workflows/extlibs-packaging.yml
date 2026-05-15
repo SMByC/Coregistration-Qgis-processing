@@ -55,16 +55,11 @@ jobs:
       - name: Install runtime libraries
         run: |
           set -euo pipefail
-          # requirements.txt lives inside Coregistration/ (the plugin subdirectory).
-          # We `cd` in so the --file argument is a bare filename: on Windows,
-          # Git Bash's MSYS layer rewrites `Coregistration/requirements.txt` to
-          # `Coregistration\requirements.txt` when forwarding to mamba.bat, and the
-          # `\r` sequence is then mishandled by the batch wrapper (the leading `r`
-          # gets eaten and the rest is run as a command). Passing only
-          # `requirements.txt` (no separator) sidesteps that conversion entirely.
+          # The checkout root IS the plugin directory (the `Coregistration` repo
+          # has requirements.txt at its top level), so we reference it directly.
           # We pass --name explicitly so the install always targets the right env,
           # regardless of whether `conda activate build` took effect in this shell.
-          (cd Coregistration && mamba install --name build --file requirements.txt -y)
+          mamba install --name build --file requirements.txt -y
           # Sanity-check: site-packages should contain more than just pip/setuptools.
           SITE=$(python -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
           echo "Installed package dirs in $SITE:"
