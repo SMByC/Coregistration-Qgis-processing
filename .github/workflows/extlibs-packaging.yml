@@ -22,9 +22,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Keep python-version in sync with SUPPORTED_PY_VERSIONS in
-        # Coregistration/utils/extralibs.py
-        python-version: ["3.12", "3.13", "3.14"]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.12"]
         include:
           - os: ubuntu-latest
             archive_os: linux
@@ -35,8 +34,6 @@ jobs:
 
     defaults:
       run:
-        # `-el {0}` makes sure conda activation is applied to every step
-        # (the `-e` is important so the script fails on the first error).
         shell: bash -el {0}
 
     steps:
@@ -55,12 +52,7 @@ jobs:
       - name: Install runtime libraries
         run: |
           set -euo pipefail
-          # The checkout root IS the plugin directory (the `Coregistration` repo
-          # has requirements.txt at its top level), so we reference it directly.
-          # We pass --name explicitly so the install always targets the right env,
-          # regardless of whether `conda activate build` took effect in this shell.
           mamba install --name build --file requirements.txt -y
-          # Sanity-check: site-packages should contain more than just pip/setuptools.
           SITE=$(python -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
           echo "Installed package dirs in $SITE:"
           ls "$SITE" | head -30
@@ -68,10 +60,25 @@ jobs:
       - name: Locate site-packages and stage as ./extlibs
         run: |
           set -euo pipefail
-          SITE_PACKAGES=$(python -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
-          echo "site-packages: $SITE_PACKAGES"
-          du -sh "$SITE_PACKAGES" || true
-          mv "$SITE_PACKAGES" ./extlibs
+          PURELIB=$(python -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
+          PLATLIB=$(python -c "import sysconfig; print(sysconfig.get_paths()['platlib'])")
+          echo "purelib : $PURELIB"
+          echo "platlib : $PLATLIB"
+          du -sh "$PURELIB" || true
+
+          mkdir -p ./extlibs
+
+          cp -a "$PURELIB/." ./extlibs/
+
+          if [ "$PLATLIB" != "$PURELIB" ]; then
+            echo "platlib differs from purelib — merging $PLATLIB"
+            cp -a "$PLATLIB/." ./extlibs/
+          fi
+
+          echo "--- extlibs contents after staging ---"
+          ls ./extlibs | head -30
+          echo "Total size:"
+          du -sh ./extlibs
 
       - name: Trim extlibs to reduce ZIP size
         run: |
@@ -95,7 +102,6 @@ jobs:
             distutils-precedence.pth
 
           # --- 3. Heavy plotting / interactive stacks pulled in transit --
-          #     (arosics imports them only for optional plotting features)
           rm -rf \
             plotly plotly-* \
             panel panel-* \
@@ -108,39 +114,36 @@ jobs:
 
           # --- 4. Strip per-package dev junk -----------------------------
           find . -type d \( \
-              -name "tests" -o -name "test" \
-              -o -name "examples" -o -name "example" \
-              -o -name "__pycache__" \
-              -o -name ".pytest_cache" -o -name ".mypy_cache" \
-            \) -prune -exec rm -rf {} +
+            -name "tests" -o -name "test" \
+            -o -name "examples" -o -name "example" \
+            -o -name "__pycache__" \
+            -o -name ".pytest_cache" -o -name ".mypy_cache" \
+          \) -prune -exec rm -rf {} +
 
           # --- 5. Per-package documentation files ------------------------
           find . -type f \( \
-              -iname "*.md" \
-              -o -iname "README*" \
-              -o -iname "CHANGELOG*" \
-              -o -iname "HISTORY*" \
-              -o -iname "AUTHORS*" \
-              -o -iname "CONTRIBUTING*" \
-              -o -iname "*.rst" \
-            \) -delete
+            -iname "*.md" \
+            -o -iname "README*" \
+            -o -iname "CHANGELOG*" \
+            -o -iname "HISTORY*" \
+            -o -iname "AUTHORS*" \
+            -o -iname "CONTRIBUTING*" \
+            -o -iname "*.rst" \
+          \) -delete
 
-
-          # --- 6. Bytecode caches (Python will regenerate at first use) --
+          # --- 6. Bytecode caches ----------------------------------------
           find . -type f \( -name "*.pyc" -o -name "*.pyo" \) -delete
 
           # --- 7. Slim down .dist-info/ metadata folders -----------------
-          #     Keep METADATA (importlib.metadata needs it) but drop the
-          #     bulky pieces that no consumer reads at runtime.
           find . -type d -name "*.dist-info" -print0 | while IFS= read -r -d '' d; do
-              rm -f \
-                "$d/RECORD" \
-                "$d/INSTALLER" \
-                "$d/REQUESTED" \
-                "$d/WHEEL" \
-                "$d/AUTHORS" \
-                "$d/LICENSE"* \
-                "$d/NOTICE"*
+            rm -f \
+              "$d/RECORD" \
+              "$d/INSTALLER" \
+              "$d/REQUESTED" \
+              "$d/WHEEL" \
+              "$d/AUTHORS" \
+              "$d/LICENSE"* \
+              "$d/NOTICE"*
           done
 
           echo "--- trimmed extlibs size ---"
@@ -153,45 +156,20 @@ jobs:
           set -eu
           cd extlibs
           if [ "${{ runner.os }}" = "macOS" ]; then
-              # macOS strip: -x removes local symbols only (safe for Python ext modules)
-              find . -type f \( -name "*.so" -o -name "*.dylib" \) -print0 \
-                  | xargs -0 -r -n 50 strip -x 2>/dev/null || true
+            find . -type f \( -name "*.so" -o -name "*.dylib" \) -print0 \
+              | xargs -0 -r -n 50 strip -x 2>/dev/null || true
           else
-              find . -type f -name "*.so*" -print0 \
-                  | xargs -0 -r -n 50 strip --strip-unneeded 2>/dev/null || true
+            find . -type f -name "*.so*" -print0 \
+              | xargs -0 -r -n 50 strip --strip-unneeded 2>/dev/null || true
           fi
           echo "--- stripped extlibs size ---"
           du -sh .
 
-      - name: Create ZIP archive
-        # Use Python's zipfile module — works on all three runners without any
-        # extra tooling (zip CLI is absent on Windows runners).
-        # All Python lines must stay indented inside the YAML literal block.
-        env:
-          ARCHIVE_OS: ${{ matrix.archive_os }}
-          PY_VER: ${{ matrix.python-version }}
-        run: |
-          set -euo pipefail
-          ARCHIVE="extlibs_${ARCHIVE_OS}_py${PY_VER}.zip"
-          export ARCHIVE
-          python -c "
-          import os, zipfile
-          archive = os.environ['ARCHIVE']
-          with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as zf:
-              for dirpath, _, filenames in os.walk('extlibs'):
-                  for fname in filenames:
-                      fpath = os.path.join(dirpath, fname)
-                      zf.write(fpath, os.path.relpath(fpath, 'extlibs'))
-          size_mb = os.path.getsize(archive) / 1024 ** 2
-          print(f'Created {archive} ({size_mb:.1f} MB)')
-          "
-          echo "ARCHIVE_NAME=$ARCHIVE" >> "$GITHUB_ENV"
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.ARCHIVE_NAME }}
-          path: ${{ env.ARCHIVE_NAME }}
-          compression-level: 0
+          name: extlibs_${{ matrix.archive_os }}_py${{ matrix.python-version }}
+          path: extlibs
+          compression-level: 9
           retention-days: 30
-          if-no-files-found: error
+          if-no-files-found: err
