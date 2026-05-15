@@ -41,7 +41,7 @@ SOURCES = \
 	basic_pixel_alignment_algorithm.py \
 	panning_pixel_adjustment_algorithm.py \
 	coregistration_plugin.py \
-	coregistration_provider.py 
+	coregistration_provider.py
 
 PLUGINNAME = Coregistration
 
@@ -54,11 +54,10 @@ PY_FILES = \
 	coregistration_plugin.py \
 	coregistration_provider.py
 
-UI_FILES = 
+UI_FILES =
 
 EXTRAS = metadata.txt LICENSE
 
-EXTRA_DIRS_FULL = icons utils extlibs_windows
 EXTRA_DIRS = icons utils
 
 COMPILED_RESOURCE_FILES = resources.py
@@ -165,15 +164,22 @@ derase:
 	@echo "-------------------------"
 	rm -Rf $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 
-zip: deploy dclean
+zip: compile
 	@echo
 	@echo "---------------------------"
 	@echo "Creating plugin zip bundle."
 	@echo "---------------------------"
-	# The zip target deploys the plugin and creates a zip file with the deployed
-	# content. You can then upload the zip file on http://plugins.qgis.org
 	rm -f $(PLUGINNAME).zip
-	cd $(HOME)/$(QGISDIR)/python/plugins; zip -9r $(CURDIR)/$(PLUGINNAME).zip $(PLUGINNAME)
+	mkdir -p .pkg_tmp/$(PLUGINNAME)
+	cp -f $(PY_FILES) $(COMPILED_RESOURCE_FILES) $(EXTRAS) .pkg_tmp/$(PLUGINNAME)/
+	@for d in $(EXTRA_DIRS); do \
+		if [ -d "$$d" ]; then cp -rf $$d .pkg_tmp/$(PLUGINNAME)/; fi; \
+	done
+	find .pkg_tmp -type d \( -name "__pycache__" -o -name "*.dist-info" -o -name "*.egg-info" \) -prune -exec rm -rf {} \;
+	find .pkg_tmp -type f \( -name "*.pyc" -o -name "*.pyo" -o -name "*.sh"  -o -name "*.db" \) -delete
+	cd .pkg_tmp && zip -9r ../$(PLUGINNAME).zip $(PLUGINNAME)
+	rm -rf .pkg_tmp
+	@echo "Created package: $(PLUGINNAME).zip"
 
 package: compile
 	# Create a zip package of the plugin named $(PLUGINNAME).zip.
@@ -232,28 +238,3 @@ doc:
 	@echo "Building documentation using sphinx."
 	@echo "------------------------------------"
 	# cd help; make html
-
-pylint:
-	@echo
-	@echo "-----------------"
-	@echo "Pylint violations"
-	@echo "-----------------"
-	@pylint --reports=n --rcfile=pylintrc . || true
-	@echo
-	@echo "----------------------"
-	@echo "If you get a 'no module named qgis.core' error, try sourcing"
-	@echo "the helper script we have provided first then run make pylint."
-	@echo "e.g. source run-env-linux.sh <path to qgis install>; make pylint"
-	@echo "----------------------"
-
-# Run pep8 style checking
-#http://pypi.python.org/pypi/pep8
-pep8:
-	@echo
-	@echo "-----------"
-	@echo "PEP8 issues"
-	@echo "-----------"
-	@pep8 --repeat --ignore=E203,E121,E122,E123,E124,E125,E126,E127,E128 --exclude $(PEP8EXCLUDE) . || true
-	@echo "-----------"
-	@echo "Ignored in PEP8 check:"
-	@echo $(PEP8EXCLUDE)
