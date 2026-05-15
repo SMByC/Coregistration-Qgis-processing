@@ -36,8 +36,8 @@ from Coregistration.utils.system_utils import get_raster_driver_name_by_extensio
 
 class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
     """
-    This algorithm compute a specific statistic using the time
-    series of all pixels across (the time) all raster in the specific band
+    Manually shifts an image's geotransform by a user-specified X/Y offset
+    in pixel units without resampling pixel values.
     """
 
     # Constants used to refer to parameters and outputs. They will be
@@ -61,7 +61,7 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
         """
         Returns a localised short helper string for the algorithm. This string
         should provide a basic description about what the algorithm does and the
-        parameters and outputs associated with it..
+        parameters and outputs associated with it.
         """
         html_help = (
             "<p>Provides a simple way to manually shift an image in the X (longitude) and Y (latitude) "
@@ -127,7 +127,7 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.SHIFT_IN_X,
-                self.tr("Shift in X (in pixels units, where + is to the right and - is to the left)"),
+                self.tr("Shift in X (in pixel units, where + is to the right and - is to the left)"),
                 type=QgsProcessingParameterNumber.Type.Double,
                 defaultValue=0,
             )
@@ -136,7 +136,7 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.SHIFT_IN_Y,
-                self.tr("Shift in Y (in pixels units, where + is to the top and - is to the bottom)"),
+                self.tr("Shift in Y (in pixel units, where + is to the top and - is to the bottom)"),
                 type=QgsProcessingParameterNumber.Type.Double,
                 defaultValue=0,
             )
@@ -145,7 +145,7 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterRasterDestination(
                 self.OUTPUT,
-                self.tr("Output raster file (skip the output will overwrite and update the input file!)"),
+                self.tr("Output raster file (Warning: leave empty to overwrite and update the input file in place)"),
                 optional=True,
                 defaultValue=None,
                 createByDefault=False,

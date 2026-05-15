@@ -39,8 +39,8 @@ from Coregistration.utils.system_utils import get_raster_driver_name_by_extensio
 
 class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
     """
-    This algorithm compute a specific statistic using the time
-    series of all pixels across (the time) all raster in the specific band
+    Detects and corrects spatially variable X/Y shifts between two images
+    using AROSICS tie-point grid matching with multistage outlier detection.
     """
 
     # Constants used to refer to parameters and outputs. They will be
@@ -85,7 +85,7 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         """
         Returns a localised short helper string for the algorithm. This string
         should provide a basic description about what the algorithm does and the
-        parameters and outputs associated with it..
+        parameters and outputs associated with it.
         """
         html_help = (
             "<p>Detects and corrects spatially variable X/Y shift misregistrations between two input images "
@@ -154,14 +154,14 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
 
         self.addParameter(
             QgsProcessingParameterRasterLayer(
-                self.IMG_REF, self.tr("The REFERENCE image to use as based to co-register the target image")
+                self.IMG_REF, self.tr("The REFERENCE image to use as a base for co-registering the target image")
             )
         )
 
         self.addParameter(
             QgsProcessingParameterRasterLayer(
                 self.INPUT,
-                self.tr("The TARGET image for co-register"),
+                self.tr("The TARGET image to co-register"),
             )
         )
 
@@ -220,7 +220,7 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(parameter)
 
         self.addParameter(
-            QgsProcessingParameterRasterDestination(self.OUTPUT, self.tr("Output raster file co-registered"))
+            QgsProcessingParameterRasterDestination(self.OUTPUT, self.tr("Output co-registered raster file"))
         )
 
     def processAlgorithm(self, parameters, context, feedback):
@@ -231,7 +231,7 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
             from arosics import COREG_LOCAL
         except Exception:
             msg = (
-                "\nError loading Arosics, this plugin requires additional Python packages to work. "
+                "\nError loading AROSICS, this plugin requires additional Python packages to work. "
                 "Read the install instructions here:\n\n"
                 "https://github.com/SMByC/Coregistration-Qgis-processing#installation\n\n"
             )
@@ -273,11 +273,11 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         feedback.pushInfo("Image to image Co-Registration:")
         feedback.pushInfo("\nProcessing file: " + img_tgt)
 
-        feedback.pushInfo("\nPerform automatic subpixel co-registration with Arosics...")
+        feedback.pushInfo("\nPerform automatic subpixel co-registration with AROSICS...")
         feedback.pushInfo("\n(To check the complete log of the process, open the Python Console)...")
         if platform.system() == "Windows":
             feedback.reportError(
-                "\nWarning: in Windows due to restrictions to enable multiprocessing inside Qgis, "
+                "\nWarning: in Windows due to restrictions to enable multiprocessing inside QGIS, "
                 "the process could take longer. Continue with one core ...\n",
                 fatalError=False,
             )

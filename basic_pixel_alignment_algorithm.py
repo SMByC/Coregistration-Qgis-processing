@@ -39,8 +39,8 @@ from Coregistration.utils.system_utils import get_raster_driver_name_by_extensio
 
 class CoregistrationAlgorithm(QgsProcessingAlgorithm):
     """
-    This algorithm compute a specific statistic using the time
-    series of all pixels across (the time) all raster in the specific band
+    Generates a new raster aligned to the reference image's spatial grid
+    using GDAL warp (reprojection, resampling, extent adjustment).
     """
 
     # Constants used to refer to parameters and outputs. They will be
@@ -80,7 +80,7 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         """
         Returns a localised short helper string for the algorithm. This string
         should provide a basic description about what the algorithm does and the
-        parameters and outputs associated with it..
+        parameters and outputs associated with it.
         """
         html_help = (
             "<p>Generates a new raster file based on the target image, reprojected and resampled to match "
@@ -145,14 +145,14 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
 
         self.addParameter(
             QgsProcessingParameterRasterLayer(
-                self.IMG_REF, self.tr("The REFERENCE image to use as based to co-register the target image")
+                self.IMG_REF, self.tr("The REFERENCE image to use as a base for co-registering the target image")
             )
         )
 
         self.addParameter(
             QgsProcessingParameterRasterLayer(
                 self.INPUT,
-                self.tr("The TARGET image for co-register"),
+                self.tr("The TARGET image to co-register"),
             )
         )
 
@@ -177,7 +177,7 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(parameter)
 
         self.addParameter(
-            QgsProcessingParameterRasterDestination(self.OUTPUT, self.tr("Output raster file co-registered"))
+            QgsProcessingParameterRasterDestination(self.OUTPUT, self.tr("Output co-registered raster file"))
         )
 
     def processAlgorithm(self, parameters, context, feedback):
