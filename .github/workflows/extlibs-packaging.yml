@@ -113,13 +113,11 @@ jobs:
               -o -iname "*.rst" \
             \) -delete
 
-          # --- 6. Type stubs are not used at runtime ---------------------
-          find . -type f -iname "*.pyi" -delete
 
-          # --- 7. Bytecode caches (Python will regenerate at first use) --
+          # --- 6. Bytecode caches (Python will regenerate at first use) --
           find . -type f \( -name "*.pyc" -o -name "*.pyo" \) -delete
 
-          # --- 8. Slim down .dist-info/ metadata folders -----------------
+          # --- 7. Slim down .dist-info/ metadata folders -----------------
           #     Keep METADATA (importlib.metadata needs it) but drop the
           #     bulky pieces that no consumer reads at runtime.
           find . -type d -name "*.dist-info" -print0 | while IFS= read -r -d '' d; do
