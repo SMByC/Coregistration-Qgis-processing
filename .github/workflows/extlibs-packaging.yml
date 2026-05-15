@@ -53,21 +53,23 @@ jobs:
         run: |
           set -euo pipefail
           mamba install --name build --file requirements.txt -y
-          SITE=$(python -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
+          SITE=$(conda run -n build python -c \
+            "import sysconfig; print(sysconfig.get_paths()['purelib'])")
           echo "Installed package dirs in $SITE:"
           ls "$SITE" | head -30
 
       - name: Locate site-packages and stage as ./extlibs
         run: |
           set -euo pipefail
-          PURELIB=$(python -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
-          PLATLIB=$(python -c "import sysconfig; print(sysconfig.get_paths()['platlib'])")
+          PURELIB=$(conda run -n build python -c \
+            "import sysconfig; print(sysconfig.get_paths()['purelib'])")
+          PLATLIB=$(conda run -n build python -c \
+            "import sysconfig; print(sysconfig.get_paths()['platlib'])")
           echo "purelib : $PURELIB"
           echo "platlib : $PLATLIB"
           du -sh "$PURELIB" || true
 
           mkdir -p ./extlibs
-
           cp -a "$PURELIB/." ./extlibs/
 
           if [ "$PLATLIB" != "$PURELIB" ]; then
@@ -172,4 +174,4 @@ jobs:
           path: extlibs
           compression-level: 9
           retention-days: 30
-          if-no-files-found: err
+          if-no-files-found: error
