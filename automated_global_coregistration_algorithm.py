@@ -247,6 +247,14 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         img_ref = get_inputfilepath(self.parameterAsRasterLayer(parameters, self.IMG_REF, context))
         img_tgt = get_inputfilepath(self.parameterAsRasterLayer(parameters, self.INPUT, context))
 
+        if img_ref == img_tgt:
+            feedback.reportError(
+                "\nThe reference image and the target image are the same file. "
+                "Please select two different images.\n",
+                fatalError=True,
+            )
+            return {}
+
         align_grids = self.parameterAsBoolean(parameters, self.ALIGN_GRIDS, context)
         match_gsd = self.parameterAsBoolean(parameters, self.MATCH_GSD, context)
 
