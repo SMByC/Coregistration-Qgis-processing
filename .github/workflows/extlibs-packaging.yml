@@ -155,20 +155,17 @@ jobs:
           echo "--- stripped extlibs size ---"
           du -sh .
 
-      - name: Create ZIP archive
-        run: |
-          set -euo pipefail
-          ARCHIVE="extlibs_${{ matrix.archive_os }}_py${{ matrix.python-version }}.zip"
-          (cd extlibs && zip -9rq "../$ARCHIVE" .)
-          ls -lh "$ARCHIVE"
-          echo "ARCHIVE_NAME=$ARCHIVE" >> "$GITHUB_ENV"
-
       - name: Upload artifact
+        # upload-artifact@v4 zips the given directory itself, so we let GitHub
+        # do the compression and avoid the previous "zip-inside-a-zip" output.
+        # The artifact's content is flat (entries at the root, no leading
+        # `extlibs/`) because the action treats the path as the artifact root.
+        # The maintainer can download this artifact and upload it directly to
+        # the GitHub Release as `extlibs_<os>_py<ver>.zip`.
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.ARCHIVE_NAME }}
-          path: ${{ env.ARCHIVE_NAME }}
-          # The file is already a compressed ZIP, no point re-compressing.
-          compression-level: 0
+          name: extlibs_${{ matrix.archive_os }}_py${{ matrix.python-version }}
+          path: extlibs
+          compression-level: 9
           retention-days: 30
           if-no-files-found: error
