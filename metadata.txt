@@ -6,7 +6,6 @@ about=This plugin use Arosics to perform automatic subpixel co-registration of i
 version=26.5
 qgisMinimumVersion=3.34
 qgisMaximumVersion=4.99
-supportsQt6=True
 
 author=Xavier Corredor Llano, SMByC
 email=xavier.corredor.llano@gmail.com
@@ -17,9 +16,13 @@ repository=https://github.com/SMByC/Coregistration-Qgis-processing
 
 changelog=
     26.5:
-    - Migrated codebase to be compatible with QGIS 4.x / Qt6 / PyQt6.
-    - Kept backward compatibility with QGIS 3.34+ (Qt5 / PyQt5) by relying on the qgis.PyQt abstraction and scoped-enum syntax supported by both PyQt5 (>= 5.12) and PyQt6.
+    - Added full support for QGIS 4.x / Qt6 / PyQt6 while keeping backward compatibility with QGIS 3.34+.
     - Replaced deprecated pkg_resources usage with importlib.metadata.
+    - Fixed panning pixel adjustment algorithm: in-place overwrite now works on Windows (no more Permission denied error when the layer is loaded in QGIS).
+    - Improved extlibs installation on Windows: locked DLL files are detected and handled gracefully, with a prompt to restart QGIS if needed.
+    - Added Arosics stdout/stderr redirection to the QGIS Processing feedback panel.
+    - Prevent running co-registration when reference and target images are identical.
+    - Force serial processing in Arosics to avoid multiprocessing issues inside QGIS.
 
 tags=raster,processing,co-registration,AROSICS
 
