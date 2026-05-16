@@ -33,7 +33,7 @@ def check_dependencies() -> bool:
     minimum version requirement (arosics >= 1.13).
     """
     try:
-        import arosics  # noqa: F401
+        import arosics
 
         # Reload so that newly-added extlibs are picked up when this function
         # is called a second time after install().

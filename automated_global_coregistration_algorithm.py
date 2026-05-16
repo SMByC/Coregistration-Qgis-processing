@@ -100,7 +100,8 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
             "<p>Key parameters: matching window center and size, maximum shift distance.</p>"
             "<p>[1] This algorithm uses AROSICS software developed by Daniel Scheffler — "
             "<a href='https://danschef.git-pages.gfz-potsdam.de/arosics/doc/'>documentation</a> and "
-            "<a href='https://doi.org/10.3390/rs9070676'>paper (Scheffler et al. 2017, Remote Sensing 9(7):676)</a>.</p>"
+            "<a href='https://doi.org/10.3390/rs9070676'>"
+            "paper (Scheffler et al. 2017, Remote Sensing 9(7):676)</a>.</p>"
         )
         return html_help
 
@@ -248,8 +249,7 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
 
         if img_ref == img_tgt:
             feedback.reportError(
-                "\nThe reference image and the target image are the same file. "
-                "Please select two different images.\n",
+                "\nThe reference image and the target image are the same file. Please select two different images.\n",
                 fatalError=True,
             )
             return {}
