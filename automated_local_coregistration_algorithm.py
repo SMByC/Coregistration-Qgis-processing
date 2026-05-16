@@ -280,14 +280,8 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
 
         feedback.pushInfo("Image to image Co-Registration:")
         feedback.pushInfo("\nProcessing file: " + img_tgt)
-
         feedback.pushInfo("\nPerform automatic subpixel co-registration with AROSICS...\n")
-        if platform.system() == "Windows":
-            feedback.reportError(
-                "\nWarning: in Windows due to restrictions to enable multiprocessing inside QGIS, "
-                "the process could take longer. Continue with one core ...\n",
-                fatalError=False,
-            )
+
         with redirect_output_to_feedback(feedback):
             CRL = COREG_LOCAL(
                 img_ref,

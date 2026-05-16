@@ -19,7 +19,6 @@
 """
 
 import os
-import platform
 
 from qgis.core import (
     QgsProcessingAlgorithm,
@@ -309,7 +308,7 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
                 max_iter=15,
                 fmt_out=output_driver_name,
                 out_crea_options=["WRITE_METADATA=NO"],
-                CPUs=1 if platform.system() == "Windows" else None,
+                CPUs=1,
             )
             CR.correct_shifts()
 
