@@ -60,31 +60,19 @@ Key parameters: tie point grid resolution, matching window size, maximum shift d
 
 *[1] These algorithms use AROSICS software developed by Daniel Scheffler, for more info <a href="https://danschef.git-pages.gfz-potsdam.de/arosics/doc/">documentation</a> and <a href="https://doi.org/10.3390/rs9070676">paper (Scheffler et al. 2017, Remote Sensing 9(7):676)</a>.
 
-## Compatibility
-
-This plugin is compatible with:
-
-* **QGIS 3.34+** built against Qt5 / PyQt5
-* **QGIS 4.x** built against Qt6 / PyQt6
-
-It uses the `qgis.PyQt` abstraction layer and scoped-enum syntax that is supported by both PyQt5 (>= 5.12) and PyQt6, so a single code base works on both QGIS major versions.
-
 ## Installation
 
 The plugin can be installed using the QGIS Plugin Manager, go into Qgis to `Plugins` menu and `Manage and install plugins`, in `All` section search for `Coregistration`.
 
 The plugin will be available in the `Processing Toolbox` or you can search and open it directly from the `Statusbar`.
 
-> *Dependencies:* 
-    This plugin requires additional Python packages (`AROSICS` and its dependencies), that are generally not part of QGIS's Python. 
+> **Dependencies:**
+    This plugin requires additional Python packages (`AROSICS` and its dependencies), that are generally not part of QGIS's Python. The plugin try to install all the dependencies for you in a local folder automatically in the installation process.
 
 #### Windows
-For Windows users download and install the plugin using the zip `Coregistration_all_in_one_win.zip` in [releases](https://github.com/SMByC/Coregistration-Qgis-processing/releases) (alternative [link](https://drive.google.com/uc?export=download&confirm=gzst&id=1RdtkZnxR53xFpvgdssampyvSiANwiZdZ)) with all the libs and dependencies inside. This should work directly without any additional steps with a Qgis version >= 3.18 on a 64bit Windows system, if you have issues with this try with the alternative installation below.
+The plugin should work directly without any additional steps with a Qgis version >= 3.34 on a 64bit Windows system, if you have issues with this try with the alternative installation below.
 
-> *Note:* For uninstall/update this plugin using this all-in-one in Windows, you must first deactivate, restart Qgis, uninstall/update it and finally activate it again.
-
-#### Linux/Mac 
-The plugin try to install all the dependencies for you in a local folder automatically in the installation process. If you want to minimize the local installation of dependencies of this plugin or fix dependency issues, a good idea is before install the plugin, install the following packages in your system: `matplotlib`, `cartopy`, `geopandas`, `plotly`, `scikit-image`
+> **Note:** Updating or reinstalling this plugin may require a **QGIS restart** to complete the installation, especially on Windows where library files may be locked by the running QGIS process.
 
 ### Alternative installation
 
@@ -96,15 +84,11 @@ conda install -c conda-forge arosics qgis
 
 After that open Qgis from the shell with `qgis` command. Then install the plugin.
 
-## Source code
+## About Us
 
-The official version control system repository of the plugin:
-[https://github.com/SMByC/Coregistration-Qgis-processing](https://github.com/SMByC/Coregistration-Qgis-processing)
+Coregistration plugin was developed by the Forest and Carbon Monitoring System (SMByC) at the Institute of Hydrology, Meteorology and Environmental Studies (IDEAM) in Colombia. SMByC is responsible for measuring and ensuring the accuracy of official national forest figures.
 
-## Issue Tracker
+- [Xavier C. Llano](https://github.com/XavierCLL) - Author and lead developer
+- [SMByC-PDI team](https://github.com/SMByC) - Development support and testing
 
-Issues, ideas and enhancements: [https://github.com/SMByC/Coregistration-Qgis-processing/issues](https://github.com/SMByC/Coregistration-Qgis-processing/issues)
-
-## License
-
-This plugin is a free/libre software and is licensed under the GNU General Public License.
+This project was fully funded by the SMByC-IDEAM, Colombia.
