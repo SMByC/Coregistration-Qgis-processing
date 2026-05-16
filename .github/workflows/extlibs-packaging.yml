@@ -72,6 +72,21 @@ jobs:
           set -euo pipefail
           mamba install --prefix "$CONDA_BUILD_PREFIX" --file requirements.txt -y
 
+      - name: Restore scikit-image .pyi stubs via pip wheel
+        # conda-forge's scikit-image package omits the *.pyi stub files that
+        # lazy_loader.attach_stub() reads at *runtime* (not just for type
+        # checking). Reinstall scikit-image from the PyPI wheel with --no-deps
+        # so we get the stubs without altering any other dependency versions.
+        run: |
+          set -euo pipefail
+          SKIMAGE_VER=$(conda run --prefix "$CONDA_BUILD_PREFIX" python -c \
+            "import importlib.metadata; print(importlib.metadata.version('scikit-image'))")
+          conda run --prefix "$CONDA_BUILD_PREFIX" pip install \
+            --no-deps --force-reinstall "scikit-image==${SKIMAGE_VER}"
+          # Verify the stub landed
+          conda run --prefix "$CONDA_BUILD_PREFIX" python -c \
+            "import skimage; print('skimage OK, version', skimage.__version__)"
+
       - name: Stage site-packages as ./extlibs
         # construct the site-packages path directly from
         # CONDA_BUILD_PREFIX using the OS-specific conda layout:
