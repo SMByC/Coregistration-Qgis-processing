@@ -1,4 +1,7 @@
-# Coregistration
+<p align="center">
+  <img src="icons/coregistration.svg" width="96" height="96">
+</p>
+<h1 align="center">Coregistration</h1>
 
 Image to image automatic co-registration processing QGIS plugin. This plugin uses AROSICS to perform automatic subpixel co-registration of image datasets based on an image matching approach working in the frequency domain.
 
