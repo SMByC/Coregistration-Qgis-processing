@@ -23,8 +23,8 @@ import tempfile
 
 from osgeo import gdal
 from qgis.core import (
+    Qgis,
     QgsProcessingAlgorithm,
-    QgsProcessingParameterDefinition,
     QgsProcessingParameterEnum,
     QgsProcessingParameterNumber,
     QgsProcessingParameterRasterDestination,
@@ -108,14 +108,14 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         lowercase alphanumeric characters only and no spaces or other
         formatting characters.
         """
-        return "Basic pixel alignment"
+        return "basic_pixel_alignment"
 
     def displayName(self):
         """
         Returns the translated algorithm name, which should be used for any
         user-visible display of the algorithm name.
         """
-        return self.tr(self.name())
+        return self.tr("Basic pixel alignment")
 
     def group(self):
         """
@@ -135,7 +135,8 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         return None
 
     def icon(self):
-        return QIcon(":/plugins/Coregistration/icons/coregistration.svg")
+        icon_path = os.path.join(os.path.dirname(__file__), "icons", "coregistration.svg")
+        return QIcon(icon_path)
 
     def initAlgorithm(self, config=None):
         """
@@ -159,11 +160,11 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         parameter = QgsProcessingParameterNumber(
             self.NODATA,
             self.tr("Nodata value for output bands"),
-            type=QgsProcessingParameterNumber.Type.Double,
+                type=Qgis.ProcessingNumberParameterType.Double,
             defaultValue=None,
             optional=True,
         )
-        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
+        parameter.setFlags(parameter.flags() | Qgis.ProcessingParameterFlag.Advanced)
         self.addParameter(parameter)
 
         parameter = QgsProcessingParameterEnum(
@@ -173,7 +174,7 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
             defaultValue=0,
             optional=False,
         )
-        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
+        parameter.setFlags(parameter.flags() | Qgis.ProcessingParameterFlag.Advanced)
         self.addParameter(parameter)
 
         self.addParameter(

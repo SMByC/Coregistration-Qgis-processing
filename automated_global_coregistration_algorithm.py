@@ -21,9 +21,9 @@
 import os
 
 from qgis.core import (
+    Qgis,
     QgsProcessingAlgorithm,
     QgsProcessingParameterBoolean,
-    QgsProcessingParameterDefinition,
     QgsProcessingParameterEnum,
     QgsProcessingParameterNumber,
     QgsProcessingParameterPoint,
@@ -116,14 +116,14 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         lowercase alphanumeric characters only and no spaces or other
         formatting characters.
         """
-        return "Automated global Co-Registration"
+        return "automated_global_coregistration"
 
     def displayName(self):
         """
         Returns the translated algorithm name, which should be used for any
         user-visible display of the algorithm name.
         """
-        return self.tr(self.name())
+        return self.tr("Automated global Co-Registration")
 
     def group(self):
         """
@@ -143,7 +143,8 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         return None
 
     def icon(self):
-        return QIcon(":/plugins/Coregistration/icons/coregistration.svg")
+        icon_path = os.path.join(os.path.dirname(__file__), "icons", "coregistration.svg")
+        return QIcon(icon_path)
 
     def initAlgorithm(self, config=None):
         """
@@ -196,7 +197,7 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterNumber(
                 self.MATCHING_WINDOW_SIZE,
                 self.tr("Custom matching window size in pixel units"),
-                type=QgsProcessingParameterNumber.Type.Integer,
+                type=Qgis.ProcessingNumberParameterType.Integer,
                 defaultValue=256,
                 optional=False,
             )
@@ -205,11 +206,11 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         parameter = QgsProcessingParameterNumber(
             self.MAX_SHIFT,
             self.tr("Maximum shift distance in reference image pixel units"),
-            type=QgsProcessingParameterNumber.Type.Integer,
+            type=Qgis.ProcessingNumberParameterType.Integer,
             defaultValue=5,
             optional=False,
         )
-        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
+        parameter.setFlags(parameter.flags() | Qgis.ProcessingParameterFlag.Advanced)
         self.addParameter(parameter)
 
         parameter = QgsProcessingParameterEnum(
@@ -219,7 +220,7 @@ class AutomatedGlobalCoregistrationAlgorithm(QgsProcessingAlgorithm):
             defaultValue=2,
             optional=False,
         )
-        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
+        parameter.setFlags(parameter.flags() | Qgis.ProcessingParameterFlag.Advanced)
         self.addParameter(parameter)
 
         self.addParameter(

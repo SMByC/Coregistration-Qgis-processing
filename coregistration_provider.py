@@ -28,10 +28,8 @@ from Coregistration.automated_local_coregistration_algorithm import AutomatedLoc
 from Coregistration.basic_pixel_alignment_algorithm import CoregistrationAlgorithm
 from Coregistration.panning_pixel_adjustment_algorithm import PanningPixelAdjustmentAlgorithm
 
-from . import resources  # noqa: F401 - side-effect: registers Qt icon resources
-
 # plugin path
-plugin_folder = os.path.dirname(os.path.dirname(__file__))
+plugin_folder = os.path.dirname(__file__)
 
 
 class CoregistrationProvider(QgsProcessingProvider):
@@ -39,14 +37,14 @@ class CoregistrationProvider(QgsProcessingProvider):
         """
         Default constructor.
         """
-        QgsProcessingProvider.__init__(self)
+        super().__init__()
 
     def unload(self):
         """
         Unloads the provider. Any tear-down steps required by the provider
         should be implemented here.
         """
-        QgsProcessingProvider.unload(self)
+        super().unload()
 
     def loadAlgorithms(self):
         """
@@ -79,7 +77,8 @@ class CoregistrationProvider(QgsProcessingProvider):
         Should return a QIcon which is used for your provider inside
         the Processing toolbox.
         """
-        return QIcon(":/plugins/Coregistration/icons/coregistration.svg")
+        icon_path = os.path.join(plugin_folder, "icons", "coregistration.svg")
+        return QIcon(icon_path)
 
     def longName(self):
         """

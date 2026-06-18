@@ -22,6 +22,7 @@ import os
 
 from osgeo import gdal
 from qgis.core import (
+    Qgis,
     QgsProcessingAlgorithm,
     QgsProcessingParameterNumber,
     QgsProcessingParameterRasterDestination,
@@ -82,14 +83,14 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
         lowercase alphanumeric characters only and no spaces or other
         formatting characters.
         """
-        return "Panning pixel adjustment"
+        return "panning_pixel_adjustment"
 
     def displayName(self):
         """
         Returns the translated algorithm name, which should be used for any
         user-visible display of the algorithm name.
         """
-        return self.tr(self.name())
+        return self.tr("Panning pixel adjustment")
 
     def group(self):
         """
@@ -109,7 +110,8 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
         return None
 
     def icon(self):
-        return QIcon(":/plugins/Coregistration/icons/coregistration.svg")
+        icon_path = os.path.join(os.path.dirname(__file__), "icons", "coregistration.svg")
+        return QIcon(icon_path)
 
     def initAlgorithm(self, config=None):
         """
@@ -128,7 +130,7 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterNumber(
                 self.SHIFT_IN_X,
                 self.tr("Shift in X (in pixel units, where + is to the right and - is to the left)"),
-                type=QgsProcessingParameterNumber.Type.Double,
+                type=Qgis.ProcessingNumberParameterType.Double,
                 defaultValue=0,
             )
         )
@@ -137,7 +139,7 @@ class PanningPixelAdjustmentAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterNumber(
                 self.SHIFT_IN_Y,
                 self.tr("Shift in Y (in pixel units, where + is to the top and - is to the bottom)"),
-                type=QgsProcessingParameterNumber.Type.Double,
+                type=Qgis.ProcessingNumberParameterType.Double,
                 defaultValue=0,
             )
         )

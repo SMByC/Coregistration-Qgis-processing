@@ -60,20 +60,11 @@ EXTRAS = metadata.txt LICENSE
 
 EXTRA_DIRS = icons utils
 
-COMPILED_RESOURCE_FILES = resources.py
+PEP8EXCLUDE=pydev,conf.py,third_party,ui
 
-PEP8EXCLUDE=pydev,resources.py,conf.py,third_party,ui
-
-# QGISDIR points to the location where your plugin should be installed.
-# This varies by platform, relative to your HOME directory:
-#	* Linux:
-#	  .local/share/QGIS/QGIS3/profiles/default/python/plugins/
-#	* Mac OS X:
-#	  Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins
-#	* Windows:
-#	  AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins'
-
-QGISDIR=.local/share/QGIS/QGIS3/profiles/default
+# Install paths. Defaults target QGIS 4; override for QGIS 3 builds, e.g.:
+#   make deploy QGISDIR=.local/share/QGIS/QGIS3/profiles/default
+QGISDIR?=.local/share/QGIS/QGIS4/profiles/default
 
 #################################################
 # Normally you would not need to edit below here
@@ -83,29 +74,9 @@ HELP = README.md
 
 PLUGIN_UPLOAD = python3 plugin_upload.py -u xaviercll
 
-RESOURCE_SRC=$(shell grep '^ *<file' resources.qrc | sed 's@</file>@@g;s/.*>//g' | tr '\n' ' ')
-
 default: compile
 
-compile: $(COMPILED_RESOURCE_FILES)
-
-# Resource compilation:
-#   * QGIS 3.x / Qt5 ships with pyrcc5
-#   * QGIS 4.x / Qt6 does NOT ship a pyrcc6 (it was removed upstream); the
-#     PySide6 equivalent (pyside6-rcc) is typically available.
-# The generated `resources.py` is post-processed to import from
-# `qgis.PyQt` so the same file is usable from both PyQt5 and PyQt6 plugins.
-RCC ?= $(shell command -v pyrcc5 2>/dev/null || command -v pyside6-rcc 2>/dev/null)
-
-%.py : %.qrc $(RESOURCES_SRC)
-	@if [ -z "$(RCC)" ]; then \
-		echo "Error: neither pyrcc5 nor pyside6-rcc found in PATH." >&2; \
-		exit 1; \
-	fi
-	$(RCC) -o $*.py  $<
-	# Make the generated file work under both PyQt5 and PyQt6
-	sed -i -e 's/^from PyQt5 import QtCore/from qgis.PyQt import QtCore/' \
-		-e 's/^from PySide6 import QtCore/from qgis.PyQt import QtCore/' $*.py
+compile:
 
 %.qm : %.ts
 	$(LRELEASE) $<
@@ -131,7 +102,7 @@ test: compile transcompile
 deploy: compile doc transcompile
 	@echo
 	@echo "------------------------------------------"
-	@echo "Deploying plugin to your qgis3 directory."
+	@echo "Deploying plugin to your QGIS 4 directory."
 	@echo "------------------------------------------"
 	# The deploy  target only works on unix like operating system where
 	# the Python plugin directory is located at:
@@ -139,7 +110,6 @@ deploy: compile doc transcompile
 	mkdir -p $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	cp -vf $(PY_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	#cp -vf $(UI_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-	cp -vf $(COMPILED_RESOURCE_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	cp -vf $(EXTRAS) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	#cp -vfr i18n $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	cp -vfr $(HELP) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/help
@@ -171,7 +141,7 @@ zip: compile
 	@echo "---------------------------"
 	rm -f $(PLUGINNAME).zip
 	mkdir -p .pkg_tmp/$(PLUGINNAME)
-	cp -f $(PY_FILES) $(COMPILED_RESOURCE_FILES) $(EXTRAS) .pkg_tmp/$(PLUGINNAME)/
+	cp -f $(PY_FILES) $(EXTRAS) .pkg_tmp/$(PLUGINNAME)/
 	@for d in $(EXTRA_DIRS); do \
 		if [ -d "$$d" ]; then cp -rf $$d .pkg_tmp/$(PLUGINNAME)/; fi; \
 	done
@@ -228,9 +198,10 @@ transclean:
 clean:
 	@echo
 	@echo "------------------------------------"
-	@echo "Removing uic and rcc generated files"
+	@echo "Removing generated files"
 	@echo "------------------------------------"
-	rm $(COMPILED_UI_FILES) $(COMPILED_RESOURCE_FILES)
+	find . -name "*.pyc" -delete
+	find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 
 doc:
 	@echo

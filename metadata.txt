@@ -4,7 +4,7 @@ description=Image to image automatic co-registration processing Qgis plugin.
 about=This plugin use Arosics to perform automatic subpixel co-registration of image datasets based on an image matching approach working in the frequency domain.
 
 version=26.5
-qgisMinimumVersion=3.34
+qgisMinimumVersion=3.36
 qgisMaximumVersion=4.99
 
 author=Xavier Corredor Llano, SMByC

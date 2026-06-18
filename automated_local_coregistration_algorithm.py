@@ -21,9 +21,9 @@
 import os
 
 from qgis.core import (
+    Qgis,
     QgsProcessingAlgorithm,
     QgsProcessingParameterBoolean,
-    QgsProcessingParameterDefinition,
     QgsProcessingParameterEnum,
     QgsProcessingParameterNumber,
     QgsProcessingParameterRasterDestination,
@@ -117,14 +117,14 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         lowercase alphanumeric characters only and no spaces or other
         formatting characters.
         """
-        return "Automated local Co-Registration"
+        return "automated_local_coregistration"
 
     def displayName(self):
         """
         Returns the translated algorithm name, which should be used for any
         user-visible display of the algorithm name.
         """
-        return self.tr(self.name())
+        return self.tr("Automated local Co-Registration")
 
     def group(self):
         """
@@ -144,7 +144,8 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         return None
 
     def icon(self):
-        return QIcon(":/plugins/Coregistration/icons/coregistration.svg")
+        icon_path = os.path.join(os.path.dirname(__file__), "icons", "coregistration.svg")
+        return QIcon(icon_path)
 
     def initAlgorithm(self, config=None):
         """
@@ -185,7 +186,7 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterNumber(
                 self.GRID_RES,
                 self.tr("Tie point grid resolution (pixel units of the target image)"),
-                type=QgsProcessingParameterNumber.Type.Integer,
+                type=Qgis.ProcessingNumberParameterType.Integer,
                 defaultValue=200,
             )
         )
@@ -194,7 +195,7 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterNumber(
                 self.WINDOW_SIZE,
                 self.tr("Custom matching window size (width and height in pixel units)"),
-                type=QgsProcessingParameterNumber.Type.Integer,
+                type=Qgis.ProcessingNumberParameterType.Integer,
                 defaultValue=256,
             )
         )
@@ -202,11 +203,11 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
         parameter = QgsProcessingParameterNumber(
             self.MAX_SHIFT,
             self.tr("Maximum shift distance in reference image pixel units"),
-            type=QgsProcessingParameterNumber.Type.Integer,
+            type=Qgis.ProcessingNumberParameterType.Integer,
             defaultValue=5,
             optional=False,
         )
-        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
+        parameter.setFlags(parameter.flags() | Qgis.ProcessingParameterFlag.Advanced)
         self.addParameter(parameter)
 
         parameter = QgsProcessingParameterEnum(
@@ -216,7 +217,7 @@ class AutomatedLocalCoregistrationAlgorithm(QgsProcessingAlgorithm):
             defaultValue=2,
             optional=False,
         )
-        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
+        parameter.setFlags(parameter.flags() | Qgis.ProcessingParameterFlag.Advanced)
         self.addParameter(parameter)
 
         self.addParameter(
