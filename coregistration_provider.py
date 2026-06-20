@@ -18,8 +18,6 @@
  ***************************************************************************/
 """
 
-import os
-
 from qgis.core import QgsProcessingProvider
 from qgis.PyQt.QtGui import QIcon
 
@@ -27,9 +25,6 @@ from Coregistration.automated_global_coregistration_algorithm import AutomatedGl
 from Coregistration.automated_local_coregistration_algorithm import AutomatedLocalCoregistrationAlgorithm
 from Coregistration.basic_pixel_alignment_algorithm import CoregistrationAlgorithm
 from Coregistration.panning_pixel_adjustment_algorithm import PanningPixelAdjustmentAlgorithm
-
-# plugin path
-plugin_folder = os.path.dirname(__file__)
 
 
 class CoregistrationProvider(QgsProcessingProvider):
@@ -77,8 +72,7 @@ class CoregistrationProvider(QgsProcessingProvider):
         Should return a QIcon which is used for your provider inside
         the Processing toolbox.
         """
-        icon_path = os.path.join(plugin_folder, "icons", "coregistration.svg")
-        return QIcon(icon_path)
+        return QIcon(":/plugins/Coregistration/icons/coregistration.svg")
 
     def longName(self):
         """

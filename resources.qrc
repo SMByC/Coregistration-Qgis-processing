@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/Coregistration" >
+        <file>icons/coregistration.svg</file>
+    </qresource>
+</RCC>

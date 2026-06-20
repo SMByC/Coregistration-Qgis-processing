@@ -76,8 +76,6 @@ def classFactory(iface):  # pylint: disable=invalid-name
     :param iface: A QGIS interface instance.
     :type iface: QgsInterface
     """
-    from Coregistration.coregistration_plugin import CoregistrationPlugin
-
     # Attempt to load bundled extra dependencies first
     pre_init_plugin()
 
@@ -98,5 +96,9 @@ def classFactory(iface):  # pylint: disable=invalid-name
                 msg,
                 QMessageBox.StandardButton.Ok,
             )
+
+    # Register icons under :/plugins/Coregistration/ before the plugin class is imported
+    from . import resources  # noqa: F401
+    from Coregistration.coregistration_plugin import CoregistrationPlugin
 
     return CoregistrationPlugin()

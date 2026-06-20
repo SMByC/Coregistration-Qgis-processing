@@ -135,8 +135,7 @@ class CoregistrationAlgorithm(QgsProcessingAlgorithm):
         return None
 
     def icon(self):
-        icon_path = os.path.join(os.path.dirname(__file__), "icons", "coregistration.svg")
-        return QIcon(icon_path)
+        return QIcon(":/plugins/Coregistration/icons/coregistration.svg")
 
     def initAlgorithm(self, config=None):
         """
